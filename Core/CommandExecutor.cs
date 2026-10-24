@@ -161,8 +161,8 @@ public class CommandExecutor
         var panel = new Panel(
             "[bold white]Intelligent Terminal Shell with VS Code-Style IntelliSense[/]\n" +
             "[grey]• Type [/][yellow]cd[/][grey], [/][yellow]git[/][grey], [/][yellow]docker[/][grey], [/][yellow]npm[/][grey] to see instant suggestions & paths[/]\n" +
-            "[grey]• Press [/][cyan][F1][/][grey] or [/][cyan][Ctrl+P][/][grey] for the [/][bold cyan]Categorized Command Catalog[/]\n" +
-            "[grey]• Press [/][cyan][Tab][/][grey] to accept suggestion, [/][cyan][Up/Down][/][grey] to navigate, [/][cyan][Esc][/][grey] to close popup[/]"
+            "[grey]• Press [/][cyan][[F1]][/][grey] or [/][cyan][[Ctrl+P]][/][grey] for the [/][bold cyan]Categorized Command Catalog[/]\n" +
+            "[grey]• Press [/][cyan][[Tab]][/][grey] to accept suggestion, [/][cyan][[Up/Down]][/][grey] to navigate, [/][cyan][[Esc]][/][grey] to close popup[/]"
         )
         {
             Border = BoxBorder.Rounded,

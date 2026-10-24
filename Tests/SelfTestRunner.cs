@@ -29,6 +29,11 @@ public static class SelfTestRunner
 
         try
         {
+            // Test 0: Welcome Banner Markup Test
+            bool bannerSuccess = true;
+            try { CommandExecutor.PrintWelcomeBanner(); } catch { bannerSuccess = false; }
+            Assert("PrintWelcomeBanner renders without markup parsing errors", bannerSuccess);
+
             // Test 1: Catalog Initialization & Built-ins
             var catalog = new CommandCatalog();
             var allCommands = catalog.GetAll();

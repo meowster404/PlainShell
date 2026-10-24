@@ -85,7 +85,7 @@ public class PaletteView
                 .Title("[bold white]Select a command from the catalog:[/]")
                 .PageSize(15)
                 .HighlightStyle(new Style(Color.Black, Color.Cyan1, Decoration.Bold))
-                .UseConverter(c => $"[{c.Category}] {c.Name} - {c.Description}");
+                .UseConverter(c => Markup.Escape($"[{c.Category}] {c.Name} - {c.Description}"));
 
             foreach (var cmd in matches)
             {
