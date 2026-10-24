@@ -71,7 +71,7 @@ public class PaletteView
 
             // Footer instructions
             AnsiConsole.WriteLine();
-            AnsiConsole.MarkupLine("[grey]Controls: [/][cyan][↑/↓][/][grey] Select command  [/][cyan][Tab / ← / →][/][grey] Switch category  [/][cyan][Enter][/][grey] Action menu  [/][cyan][Esc][/][grey] Exit[/]");
+            AnsiConsole.MarkupLine("[grey]Controls: [/][cyan][[↑/↓]][/][grey] Select command  [/][cyan][[Tab / ← / →]][/][grey] Switch category  [/][cyan][[Enter]][/][grey] Action menu  [/][cyan][[Esc]][/][grey] Exit[/]");
 
             // Wait for keypress
             var keyInfo = Console.ReadKey(intercept: true);

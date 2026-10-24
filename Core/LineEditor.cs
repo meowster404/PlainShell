@@ -112,7 +112,7 @@ public class LineEditor
             if (keyInfo.Key == ConsoleKey.Escape)
             {
                 suggestionsVisible = false;
-                ClearPopupArea(promptTop, lastRenderedPopupHeight);
+                ClearPopupArea(promptTop, lastRenderedPopupHeight, promptLeft, cursor);
                 lastRenderedPopupHeight = 0;
                 continue;
             }
@@ -343,7 +343,7 @@ public class LineEditor
     {
         if (suggestions.Count == 0)
         {
-            ClearPopupArea(promptTop, previousHeight);
+            ClearPopupArea(promptTop, previousHeight, promptLeft, cursor);
             return 0;
         }
 
@@ -354,7 +354,7 @@ public class LineEditor
 
         if (availableRowsBelow < maxPopupHeight + 2)
         {
-            ClearPopupArea(promptTop, previousHeight);
+            ClearPopupArea(promptTop, previousHeight, promptLeft, cursor);
             return 0;
         }
 
@@ -455,20 +455,26 @@ public class LineEditor
         return rowCount;
     }
 
-    private static void ClearPopupArea(int promptTop, int rowCount)
+    private static void ClearPopupArea(int promptTop, int rowCount, int promptLeft = -1, int cursor = -1)
     {
         if (rowCount <= 0) return;
 
         try
         {
+            int clearWidth = Math.Min(Console.BufferWidth - 1, 80);
+            string blank = new string(' ', clearWidth);
             for (int i = 1; i <= rowCount + 1; i++)
             {
                 int row = promptTop + i;
                 if (row < Console.BufferHeight)
                 {
                     Console.SetCursorPosition(0, row);
-                    Console.Write("\u001b[2K"); // Clear entire line
+                    Console.Write(blank);
                 }
+            }
+            if (promptLeft >= 0 && cursor >= 0 && promptTop < Console.BufferHeight)
+            {
+                Console.SetCursorPosition(promptLeft + cursor, promptTop);
             }
         }
         catch
