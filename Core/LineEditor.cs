@@ -27,8 +27,11 @@ public class LineEditor
         var buffer = new StringBuilder(initialText ?? string.Empty);
         int cursor = buffer.Length;
         int selectedSuggestionIndex = 0;
-        bool suggestionsVisible = true;
+        bool suggestionsVisible = buffer.Length > 0;
         int lastRenderedPopupHeight = 0;
+
+        // Reset history pointer for each prompt line
+        _context.ResetHistoryIndex();
 
         // Render prompt and record starting position
         RenderPrompt();
@@ -64,7 +67,14 @@ public class LineEditor
             }
 
             // Render suggestion popup overlay
-            lastRenderedPopupHeight = RenderIntelliSenseOverlay(suggestions, selectedSuggestionIndex, promptLeft, promptTop, buffer.ToString(), cursor, lastRenderedPopupHeight);
+            lastRenderedPopupHeight = RenderIntelliSenseOverlay(
+                suggestions,
+                selectedSuggestionIndex,
+                promptLeft,
+                promptTop,
+                buffer.ToString(),
+                cursor,
+                lastRenderedPopupHeight);
 
             // Read keypress
             var keyInfo = Console.ReadKey(intercept: true);
@@ -88,7 +98,7 @@ public class LineEditor
             if (keyInfo.Key == ConsoleKey.L && keyInfo.Modifiers.HasFlag(ConsoleModifiers.Control))
             {
                 ClearPopupArea(promptTop, lastRenderedPopupHeight);
-                Console.Clear();
+                ConsoleHelper.SafeClear();
                 CommandExecutor.PrintWelcomeBanner();
                 RenderPrompt();
                 promptLeft = Console.CursorLeft;
@@ -98,7 +108,7 @@ public class LineEditor
                 continue;
             }
 
-            // 4. Escape -> Dismiss suggestions popup
+            // 4. Escape -> Dismiss suggestions popup and allow free history navigation
             if (keyInfo.Key == ConsoleKey.Escape)
             {
                 suggestionsVisible = false;
@@ -129,19 +139,53 @@ public class LineEditor
                 continue;
             }
 
-            // 7. Arrow Up / Down -> Navigate suggestions or history
-            if (keyInfo.Key == ConsoleKey.DownArrow)
+            // 7. Arrow Up -> Previous Command History or Suggestion Up
+            if (keyInfo.Key == ConsoleKey.UpArrow)
             {
-                if (suggestions.Count > 0 && suggestionsVisible)
+                // If suggestions are visible and user is not at top item, move up in suggestions
+                if (suggestions.Count > 0 && suggestionsVisible && selectedSuggestionIndex > 0)
                 {
-                    selectedSuggestionIndex = (selectedSuggestionIndex + 1) % suggestions.Count;
+                    selectedSuggestionIndex--;
                 }
                 else
                 {
-                    // History forward
+                    // History backward (walk previous commands)
+                    string? prev = _context.GetPreviousHistory();
+                    if (prev != null)
+                    {
+                        ClearPopupArea(promptTop, lastRenderedPopupHeight);
+                        lastRenderedPopupHeight = 0;
+                        buffer.Clear();
+                        buffer.Append(prev);
+                        cursor = buffer.Length;
+                        suggestionsVisible = false; // Keep closed while cycling history
+                        RedrawBuffer(promptLeft, promptTop, buffer.ToString(), cursor);
+                    }
+                }
+                continue;
+            }
+
+            // 8. Arrow Down -> Next Command History or Suggestion Down
+            if (keyInfo.Key == ConsoleKey.DownArrow)
+            {
+                // If suggestions are visible and not at the end, move down in suggestions
+                if (suggestions.Count > 0 && suggestionsVisible && selectedSuggestionIndex < suggestions.Count - 1)
+                {
+                    selectedSuggestionIndex++;
+                }
+                else if (suggestions.Count > 0 && suggestionsVisible && selectedSuggestionIndex == suggestions.Count - 1)
+                {
+                    // Loop back to top
+                    selectedSuggestionIndex = 0;
+                }
+                else
+                {
+                    // History forward (walk toward current)
                     string? next = _context.GetNextHistory();
                     if (next != null)
                     {
+                        ClearPopupArea(promptTop, lastRenderedPopupHeight);
+                        lastRenderedPopupHeight = 0;
                         buffer.Clear();
                         buffer.Append(next);
                         cursor = buffer.Length;
@@ -152,29 +196,7 @@ public class LineEditor
                 continue;
             }
 
-            if (keyInfo.Key == ConsoleKey.UpArrow)
-            {
-                if (suggestions.Count > 0 && suggestionsVisible)
-                {
-                    selectedSuggestionIndex = (selectedSuggestionIndex - 1 + suggestions.Count) % suggestions.Count;
-                }
-                else
-                {
-                    // History back
-                    string? prev = _context.GetPreviousHistory();
-                    if (prev != null)
-                    {
-                        buffer.Clear();
-                        buffer.Append(prev);
-                        cursor = buffer.Length;
-                        suggestionsVisible = false;
-                        RedrawBuffer(promptLeft, promptTop, buffer.ToString(), cursor);
-                    }
-                }
-                continue;
-            }
-
-            // 8. Navigation keys (Left, Right, Home, End)
+            // 9. Navigation keys (Left, Right, Home, End)
             if (keyInfo.Key == ConsoleKey.LeftArrow)
             {
                 if (cursor > 0)
@@ -209,14 +231,14 @@ public class LineEditor
                 continue;
             }
 
-            // 9. Backspace & Delete
+            // 10. Backspace & Delete
             if (keyInfo.Key == ConsoleKey.Backspace)
             {
                 if (cursor > 0)
                 {
                     buffer.Remove(cursor - 1, 1);
                     cursor--;
-                    suggestionsVisible = true;
+                    suggestionsVisible = buffer.Length > 0;
                     selectedSuggestionIndex = 0;
                     RedrawBuffer(promptLeft, promptTop, buffer.ToString(), cursor);
                 }
@@ -228,14 +250,14 @@ public class LineEditor
                 if (cursor < buffer.Length)
                 {
                     buffer.Remove(cursor, 1);
-                    suggestionsVisible = true;
+                    suggestionsVisible = buffer.Length > 0;
                     selectedSuggestionIndex = 0;
                     RedrawBuffer(promptLeft, promptTop, buffer.ToString(), cursor);
                 }
                 continue;
             }
 
-            // 10. Printable characters
+            // 11. Printable characters -> insert and open suggestions for active token
             if (!char.IsControl(keyInfo.KeyChar))
             {
                 buffer.Insert(cursor, keyInfo.KeyChar);
@@ -301,12 +323,12 @@ public class LineEditor
         try
         {
             Console.SetCursorPosition(promptLeft, promptTop);
-            Console.Write(text + "   "); // Clear trailing chars
+            Console.Write(text + "        "); // Clear trailing characters
             Console.SetCursorPosition(promptLeft + cursor, promptTop);
         }
         catch
         {
-            // Ignore console out of bounds if terminal resized
+            // Ignore boundary errors if terminal is small
         }
     }
 
@@ -332,20 +354,28 @@ public class LineEditor
 
         if (availableRowsBelow < maxPopupHeight + 2)
         {
-            // Not enough space below, avoid drawing off-screen
             ClearPopupArea(promptTop, previousHeight);
             return 0;
         }
 
-        int boxWidth = Math.Min(75, Math.Max(45, bufferWidth - 4));
+        // Exact box width calculation
+        int boxWidth = Math.Min(78, Math.Max(50, bufferWidth - 2));
+        int innerContentWidth = boxWidth - 2; // Width inside the vertical borders
         int startRow = promptTop + 1;
 
-        // Header
+        // 1. Build Top Header with mathematically exact width
+        string title = "┌─ IntelliSense Suggestions ─";
+        string hint = " [Tab] Insert  [↑/↓] Select ─┐";
+        int fillDashes = boxWidth - title.Length - hint.Length;
+        if (fillDashes < 1) fillDashes = 1;
+        string topBorder = $"\u001b[90m{title}{new string('─', fillDashes)}{hint}\u001b[0m";
+
         Console.SetCursorPosition(0, startRow);
-        Console.Write($"\u001b[90m┌─ IntelliSense Suggestions ────────────── [Tab] Insert  [↑/↓] Select ─┐\u001b[0m".PadRight(boxWidth));
+        Console.Write(topBorder + "\u001b[K");
 
         int rowCount = 1;
 
+        // 2. Render each suggestion row
         for (int i = 0; i < maxPopupHeight; i++)
         {
             int row = startRow + 1 + i;
@@ -365,45 +395,51 @@ public class LineEditor
                 _ => "\u001b[90m"
             };
 
-            string prefix = isSelected ? " \u001b[1;36m▶\u001b[0m " : "   ";
+            string prefix = isSelected ? " ▶ " : "   ";
             string namePart = item.DisplayText;
             if (namePart.Length > 24) namePart = namePart.Substring(0, 21) + "...";
+            namePart = namePart.PadRight(24);
 
+            // Compute exact space remaining for description
+            // Prefix: 3, Badge: 6, Space: 1, Name: 24, Space: 2 = 36 characters
+            int descSpace = innerContentWidth - 36;
             string descPart = item.Description;
-            int remainingDescSpace = boxWidth - 36;
-            if (remainingDescSpace > 5 && descPart.Length > remainingDescSpace)
+            if (descSpace > 3 && descPart.Length > descSpace)
             {
-                descPart = descPart.Substring(0, remainingDescSpace - 3) + "...";
+                descPart = descPart.Substring(0, descSpace - 3) + "...";
+            }
+            if (descSpace > 0)
+            {
+                descPart = descPart.PadRight(descSpace);
             }
 
-            string content;
+            // Build colored line
+            string coloredLine;
             if (isSelected)
             {
-                // Highlight line with dark cyan/blue background
-                content = $"{prefix}{badgeColor}{badge,-6}\u001b[0m \u001b[44;1;37m{namePart,-24}\u001b[0m  \u001b[90m{descPart}\u001b[0m";
+                coloredLine = $"\u001b[1;36m{prefix}\u001b[0m{badgeColor}{badge,-6}\u001b[0m \u001b[44;1;37m{namePart}\u001b[0m  \u001b[90m{descPart}\u001b[0m";
             }
             else
             {
-                content = $"{prefix}{badgeColor}{badge,-6}\u001b[0m \u001b[37m{namePart,-24}\u001b[0m  \u001b[90m{descPart}\u001b[0m";
+                coloredLine = $"{prefix}{badgeColor}{badge,-6}\u001b[0m \u001b[37m{namePart}\u001b[0m  \u001b[90m{descPart}\u001b[0m";
             }
 
-            // Print with right border
-            Console.Write($"\u001b[90m│\u001b[0m{content}");
-            int currentLeft = Console.CursorLeft;
-            if (currentLeft < boxWidth - 1)
-            {
-                Console.Write(new string(' ', (boxWidth - 1) - currentLeft));
-            }
-            Console.Write("\u001b[90m│\u001b[0m\u001b[K");
+            // Print with borders aligned to exact column
+            Console.Write($"\u001b[90m│\u001b[0m{coloredLine}\u001b[90m│\u001b[0m\u001b[K");
             rowCount++;
         }
 
-        // Footer
+        // 3. Build Bottom Footer with mathematically exact width
+        string footerTitle = "└─ [F1 / Ctrl+P] Command Catalog ";
+        int footerFill = boxWidth - footerTitle.Length - 1;
+        if (footerFill < 1) footerFill = 1;
+        string bottomBorder = $"\u001b[90m{footerTitle}{new string('─', footerFill)}┘\u001b[0m";
+
         Console.SetCursorPosition(0, startRow + 1 + maxPopupHeight);
-        Console.Write($"\u001b[90m└─ [F1 / Ctrl+P] All Commands Catalog ───────────────────────────────┘\u001b[0m".PadRight(boxWidth));
+        Console.Write(bottomBorder + "\u001b[K");
         rowCount++;
 
-        // Clear any old rows if previous popup was taller
+        // Clear any leftover lines if previous popup was taller
         if (previousHeight > rowCount)
         {
             for (int r = startRow + rowCount; r <= startRow + previousHeight; r++)
@@ -413,7 +449,7 @@ public class LineEditor
             }
         }
 
-        // Return cursor to input line
+        // Return cursor to input position
         Console.SetCursorPosition(promptLeft + cursor, promptTop);
 
         return rowCount;
@@ -431,7 +467,7 @@ public class LineEditor
                 if (row < Console.BufferHeight)
                 {
                     Console.SetCursorPosition(0, row);
-                    Console.Write("\u001b[2K"); // ANSI clear entire line
+                    Console.Write("\u001b[2K"); // Clear entire line
                 }
             }
         }

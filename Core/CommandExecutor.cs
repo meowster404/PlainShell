@@ -17,21 +17,33 @@ public class CommandExecutor
         _openCatalogAction = openCatalogAction;
     }
 
-    public void Execute(string commandLine)
+    public void Execute(string commandLine, bool asAdmin = false)
     {
         if (string.IsNullOrWhiteSpace(commandLine)) return;
 
         string trimmed = commandLine.Trim();
         _context.AddHistory(trimmed);
 
-        // Check for built-ins first
-        if (HandleBuiltIns(trimmed))
+        // Detect 'admin' or 'sudo' command prefix
+        if (trimmed.StartsWith("admin ", StringComparison.OrdinalIgnoreCase))
+        {
+            asAdmin = true;
+            trimmed = trimmed.Substring(6).Trim();
+        }
+        else if (trimmed.StartsWith("sudo ", StringComparison.OrdinalIgnoreCase))
+        {
+            asAdmin = true;
+            trimmed = trimmed.Substring(5).Trim();
+        }
+
+        // Check for built-ins first (unless forced as admin)
+        if (!asAdmin && HandleBuiltIns(trimmed))
         {
             return;
         }
 
         // Execute external command
-        RunExternalCommand(trimmed);
+        RunExternalCommand(trimmed, asAdmin);
     }
 
     private bool HandleBuiltIns(string commandLine)
@@ -117,12 +129,28 @@ public class CommandExecutor
         }
     }
 
-    private void RunExternalCommand(string commandLine)
+    private void RunExternalCommand(string commandLine, bool asAdmin = false)
     {
         try
         {
-            // Use cmd.exe /c to seamlessly handle built-in shell commands (dir, copy, del, etc.)
-            // and external executables (git, docker, npm, dotnet, etc.)
+            if (asAdmin)
+            {
+                AnsiConsole.MarkupLine("[bold yellow]🛡️ Requesting Administrator privileges (UAC prompt)...[/]");
+                var adminInfo = new ProcessStartInfo
+                {
+                    FileName = "cmd.exe",
+                    Arguments = $"/k cd /d \"{_context.CurrentDirectory}\" && {commandLine}",
+                    WorkingDirectory = _context.CurrentDirectory,
+                    Verb = "runas",
+                    UseShellExecute = true
+                };
+
+                using var adminProc = Process.Start(adminInfo);
+                adminProc?.WaitForExit();
+                return;
+            }
+
+            // Normal non-elevated command execution
             var startInfo = new ProcessStartInfo
             {
                 FileName = "cmd.exe",
@@ -139,11 +167,12 @@ public class CommandExecutor
             if (process != null)
             {
                 process.WaitForExit();
-                if (process.ExitCode != 0)
-                {
-                    // Optionally note non-zero exit code if needed
-                }
             }
+        }
+        catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 1223)
+        {
+            // The user cancelled the UAC prompt
+            AnsiConsole.MarkupLine("[yellow]Administrator prompt was cancelled by user.[/]");
         }
         catch (Exception ex)
         {

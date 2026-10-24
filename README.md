@@ -48,12 +48,20 @@ D:\Projects\MyApp (main) ❯ git
     - 🌿 *Git Version Control* (`git status`, `git add .`, `git commit -m`, `git log`)
     - 🐳 *Docker & Containers* (`docker ps`, `docker compose up -d`, `docker logs -f`)
     - 🌐 *Networking* (`curl -I`, `ping`, `ipconfig /all`, `netstat -ano`)
-    - ⚙️ *Process & System* (`tasklist`, `taskkill /F /PID`, `systeminfo`)
-    - 📦 *Package Managers & Build* (`npm install`, `dotnet run`, `pip install`)
-    - 🛠️ *Developer Utilities* (`code .`, `type`, `where`)
+    - ⚙️ *Windows Administration & Repair* (`sfc /scannow`, `DISM`, `chkdsk`, `powercfg`)
+    - 🌐 *Networking & Wi-Fi* (`ipconfig /flushdns`, `netsh wlan show profile name= key=clear`, `netstat -ano`)
+    - ⚙️ *Processes & Services* (`net start`, `net stop`, `tasklist`, `taskkill`)
+    - 📦 *Packages & Developer Tools* (`winget`, `wsl`, `npm`, `dotnet`, `pip`, `gh`)
+    - 🛠️ *Navigation & Filesystem* (`robocopy`, `where.exe`, `findstr`, `takeown`, `icacls`)
     - 💡 *Custom User Commands*
-  - Search across commands by name, description, category, or tags.
-  - Run immediately with `[Enter]` or insert into the prompt with `[Tab]` to edit arguments!
+  - **Live Filter as you type**: Table instantly refreshes with every keystroke!
+  - **Tab to Switch Categories**: Seamlessly flip through categories with `Tab` or `←/→`.
+  - **🛡️ Run as Administrator Option**: Run any command elevated via UAC prompt!
+- **🛡️ Direct Command Elevation (`admin` / `sudo`)**:
+  - Run any command with Administrator privileges right from the prompt:
+    `admin sfc /scannow` or `sudo netsh winsock reset`.
+- **⏪ Standard Command History Backtracking**:
+  - Press **`Up Arrow`** at the prompt to immediately cycle backwards through past commands, and **`Down Arrow`** to cycle forwards, exactly like `cmd.exe` and PowerShell!
 - **💾 Custom Command Persistence**:
   - Easily add your own custom project commands and snippets through the interactive palette or by editing `%USERPROFILE%/.plainshell/custom_commands.json`.
 - **🌿 Git Branch Detection**:

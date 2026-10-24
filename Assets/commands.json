@@ -12,17 +12,17 @@
     "Name": "dir",
     "Category": "Navigation & Filesystem",
     "Description": "List files and directories in current folder",
-    "Syntax": "dir [/s] [/b] [path]",
+    "Syntax": "dir [/s] [/b] [/o:d] [path]",
     "Example": "dir /b",
     "Tags": ["ls", "list", "files", "folder"],
     "IsCustom": false
   },
   {
-    "Name": "tree",
+    "Name": "tree /F /A",
     "Category": "Navigation & Filesystem",
-    "Description": "Graphically display the folder structure of a drive or path",
+    "Description": "Graphically display the folder and file structure in ASCII",
     "Syntax": "tree [/F] [/A] [path]",
-    "Example": "tree /F",
+    "Example": "tree /F /A",
     "Tags": ["tree", "structure", "folder", "hierarchy"],
     "IsCustom": false
   },
@@ -49,7 +49,7 @@
     "Category": "Navigation & Filesystem",
     "Description": "Move files or rename files and directories",
     "Syntax": "move <source> <destination>",
-    "Example": "move old_name.txt new_name.txt",
+    "Example": "move old.txt new.txt",
     "Tags": ["mv", "rename", "relocate"],
     "IsCustom": false
   },
@@ -57,8 +57,8 @@
     "Name": "del",
     "Category": "Navigation & Filesystem",
     "Description": "Delete one or more files",
-    "Syntax": "del [/s] [/q] <filename>",
-    "Example": "del /q temp.log",
+    "Syntax": "del [/s] [/q] [/f] <filename>",
+    "Example": "del /q /f temp.log",
     "Tags": ["rm", "remove", "delete", "erase"],
     "IsCustom": false
   },
@@ -81,27 +81,108 @@
     "IsCustom": false
   },
   {
-    "Name": "code .",
-    "Category": "Developer Utilities",
-    "Description": "Open current directory in Visual Studio Code",
-    "Syntax": "code [path_or_file]",
-    "Example": "code .",
-    "Tags": ["vscode", "editor", "ide"],
+    "Name": "robocopy",
+    "Category": "Navigation & Filesystem",
+    "Description": "Robust multi-threaded file copy and directory mirroring",
+    "Syntax": "robocopy <source> <destination> [/E] [/Z] [/ZB] [/R:3] [/W:5]",
+    "Example": "robocopy C:\\src D:\\backup /E /Z /R:2 /W:3",
+    "Tags": ["backup", "mirror", "sync", "fast", "copy"],
+    "IsCustom": false
+  },
+  {
+    "Name": "where.exe",
+    "Category": "Navigation & Filesystem",
+    "Description": "Locate and display the path of an executable in system PATH",
+    "Syntax": "where.exe <command_or_pattern>",
+    "Example": "where.exe git",
+    "Tags": ["which", "locate", "find", "path"],
+    "IsCustom": false
+  },
+  {
+    "Name": "findstr /s /i /n",
+    "Category": "Navigation & Filesystem",
+    "Description": "Search recursively for strings inside files with line numbers",
+    "Syntax": "findstr /s /i /n \"<pattern>\" <file_pattern>",
+    "Example": "findstr /s /i /n \"TODO\" *.cs",
+    "Tags": ["grep", "search", "find", "text"],
+    "IsCustom": false
+  },
+  {
+    "Name": "mklink /D",
+    "Category": "Navigation & Filesystem",
+    "Description": "Create a directory symbolic link (requires Admin or Dev Mode)",
+    "Syntax": "mklink /D <link_name> <target_path>",
+    "Example": "mklink /D docs ..\\Documentation",
+    "Tags": ["symlink", "link", "shortcut"],
+    "IsCustom": false
+  },
+  {
+    "Name": "attrib -h -r -s",
+    "Category": "Navigation & Filesystem",
+    "Description": "Remove hidden, read-only, and system attributes from files",
+    "Syntax": "attrib -h -r -s /s /d <path>\\*.*",
+    "Example": "attrib -h -r -s *.*",
+    "Tags": ["unhide", "permissions", "attributes"],
+    "IsCustom": false
+  },
+  {
+    "Name": "takeown /f",
+    "Category": "Navigation & Filesystem",
+    "Description": "Take administrative ownership of a file or directory tree",
+    "Syntax": "takeown /f <path> /r /d y",
+    "Example": "takeown /f C:\\LockedFolder /r /d y",
+    "Tags": ["ownership", "admin", "permissions"],
+    "IsCustom": false
+  },
+  {
+    "Name": "icacls /grant",
+    "Category": "Navigation & Filesystem",
+    "Description": "Grant Full Control NTFS permissions to administrators recursively",
+    "Syntax": "icacls <path> /grant administrators:F /t",
+    "Example": "icacls C:\\Folder /grant administrators:F /t",
+    "Tags": ["permissions", "ntfs", "acl", "admin"],
+    "IsCustom": false
+  },
+  {
+    "Name": "git config --global user.name",
+    "Category": "Git Version Control",
+    "Description": "Set global Git author name for all commits",
+    "Syntax": "git config --global user.name \"<Your Name>\"",
+    "Example": "git config --global user.name \"Jane Doe\"",
+    "Tags": ["git", "config", "author", "name", "setup"],
+    "IsCustom": false
+  },
+  {
+    "Name": "git config --global user.email",
+    "Category": "Git Version Control",
+    "Description": "Set global Git author email address for commits",
+    "Syntax": "git config --global user.email \"<your.email@example.com>\"",
+    "Example": "git config --global user.email \"jane@example.com\"",
+    "Tags": ["git", "config", "email", "setup"],
+    "IsCustom": false
+  },
+  {
+    "Name": "git config --list --show-origin",
+    "Category": "Git Version Control",
+    "Description": "List all active Git configuration settings with config file paths",
+    "Syntax": "git config --list [--show-origin]",
+    "Example": "git config --list --show-origin",
+    "Tags": ["git", "config", "settings", "view"],
     "IsCustom": false
   },
   {
     "Name": "git status",
     "Category": "Git Version Control",
-    "Description": "Show the working tree status and modified files",
+    "Description": "Show working tree status, staged and unstaged files",
     "Syntax": "git status [-s]",
     "Example": "git status",
-    "Tags": ["git", "vcs", "diff", "state"],
+    "Tags": ["git", "status", "vcs", "diff"],
     "IsCustom": false
   },
   {
     "Name": "git add .",
     "Category": "Git Version Control",
-    "Description": "Stage all modified and new files for commit",
+    "Description": "Stage all modified and untracked files in repository",
     "Syntax": "git add <pathspec>",
     "Example": "git add .",
     "Tags": ["git", "stage", "commit"],
@@ -110,16 +191,16 @@
   {
     "Name": "git commit -m",
     "Category": "Git Version Control",
-    "Description": "Record staged changes to the repository with a commit message",
+    "Description": "Record staged changes into repository history with a message",
     "Syntax": "git commit -m \"<message>\"",
-    "Example": "git commit -m \"feat: add autocomplete\"",
-    "Tags": ["git", "save", "record"],
+    "Example": "git commit -m \"feat: implement live search\"",
+    "Tags": ["git", "save", "commit"],
     "IsCustom": false
   },
   {
     "Name": "git push",
     "Category": "Git Version Control",
-    "Description": "Update remote references along with associated objects",
+    "Description": "Push local commits to remote repository",
     "Syntax": "git push [remote] [branch]",
     "Example": "git push origin main",
     "Tags": ["git", "remote", "upload", "sync"],
@@ -128,52 +209,556 @@
   {
     "Name": "git pull",
     "Category": "Git Version Control",
-    "Description": "Fetch from and integrate with another repository or branch",
+    "Description": "Fetch and integrate changes from remote repository",
     "Syntax": "git pull [remote] [branch]",
     "Example": "git pull origin main",
-    "Tags": ["git", "sync", "download", "fetch"],
+    "Tags": ["git", "download", "fetch", "sync"],
     "IsCustom": false
   },
   {
-    "Name": "git log --oneline -n 10",
+    "Name": "git log --graph --oneline --all",
     "Category": "Git Version Control",
-    "Description": "Display compact commit history for the last 10 commits",
-    "Syntax": "git log [--oneline] [-n count]",
-    "Example": "git log --oneline -n 10",
-    "Tags": ["git", "history", "commits"],
+    "Description": "Display visual branch history tree with compact commit hashes",
+    "Syntax": "git log --graph --oneline --all [-n count]",
+    "Example": "git log --graph --oneline --all -n 15",
+    "Tags": ["git", "history", "graph", "tree"],
     "IsCustom": false
   },
   {
     "Name": "git diff",
     "Category": "Git Version Control",
-    "Description": "Show changes between commits, commit and working tree",
+    "Description": "Show unstaged line-by-line differences in working directory",
     "Syntax": "git diff [path]",
     "Example": "git diff",
     "Tags": ["git", "changes", "comparison"],
     "IsCustom": false
   },
   {
+    "Name": "git diff --cached",
+    "Category": "Git Version Control",
+    "Description": "Show changes staged for next commit against last commit",
+    "Syntax": "git diff --cached",
+    "Example": "git diff --cached",
+    "Tags": ["git", "staged", "review"],
+    "IsCustom": false
+  },
+  {
+    "Name": "git remote -v",
+    "Category": "Git Version Control",
+    "Description": "List all configured remote repositories with fetch/push URLs",
+    "Syntax": "git remote -v",
+    "Example": "git remote -v",
+    "Tags": ["git", "remote", "url", "github"],
+    "IsCustom": false
+  },
+  {
+    "Name": "git remote add origin",
+    "Category": "Git Version Control",
+    "Description": "Link local repository to a remote GitHub/GitLab URL",
+    "Syntax": "git remote add origin <url>",
+    "Example": "git remote add origin https://github.com/user/repo.git",
+    "Tags": ["git", "origin", "link", "remote"],
+    "IsCustom": false
+  },
+  {
     "Name": "git checkout -b",
     "Category": "Git Version Control",
-    "Description": "Create and switch to a new branch",
+    "Description": "Create and immediately switch to a new branch",
     "Syntax": "git checkout -b <branch_name>",
-    "Example": "git checkout -b feature/search",
-    "Tags": ["git", "branch", "switch"],
+    "Example": "git checkout -b feature/dark-mode",
+    "Tags": ["git", "branch", "create", "switch"],
+    "IsCustom": false
+  },
+  {
+    "Name": "git restore --staged",
+    "Category": "Git Version Control",
+    "Description": "Unstage a file from the staging area without discarding changes",
+    "Syntax": "git restore --staged <file>",
+    "Example": "git restore --staged appsettings.json",
+    "Tags": ["git", "unstage", "undo"],
+    "IsCustom": false
+  },
+  {
+    "Name": "git reset --soft HEAD~1",
+    "Category": "Git Version Control",
+    "Description": "Undo the most recent commit but keep all file changes staged",
+    "Syntax": "git reset --soft HEAD~1",
+    "Example": "git reset --soft HEAD~1",
+    "Tags": ["git", "undo", "commit"],
     "IsCustom": false
   },
   {
     "Name": "git stash",
     "Category": "Git Version Control",
-    "Description": "Stash the changes in a dirty working directory away",
-    "Syntax": "git stash [save|pop|list]",
-    "Example": "git stash pop",
+    "Description": "Temporarily save uncommitted changes to a dirty stash stack",
+    "Syntax": "git stash [save \"message\"]",
+    "Example": "git stash",
     "Tags": ["git", "stash", "temporary"],
     "IsCustom": false
   },
   {
-    "Name": "docker ps",
+    "Name": "git stash pop",
+    "Category": "Git Version Control",
+    "Description": "Reapply the most recently stashed changes and remove from stash",
+    "Syntax": "git stash pop",
+    "Example": "git stash pop",
+    "Tags": ["git", "restore", "stash"],
+    "IsCustom": false
+  },
+  {
+    "Name": "git clean -fd",
+    "Category": "Git Version Control",
+    "Description": "Force remove untracked files and directories from working tree",
+    "Syntax": "git clean -fd",
+    "Example": "git clean -fd",
+    "Tags": ["git", "clean", "purge"],
+    "IsCustom": false
+  },
+  {
+    "Name": "git cherry-pick",
+    "Category": "Git Version Control",
+    "Description": "Apply the changes introduced by an existing commit to current branch",
+    "Syntax": "git cherry-pick <commit_hash>",
+    "Example": "git cherry-pick a1b2c3d",
+    "Tags": ["git", "commit", "port"],
+    "IsCustom": false
+  },
+  {
+    "Name": "git tag -a",
+    "Category": "Git Version Control",
+    "Description": "Create an annotated version release tag",
+    "Syntax": "git tag -a <version> -m \"<message>\"",
+    "Example": "git tag -a v1.0.0 -m \"Release 1.0.0\"",
+    "Tags": ["git", "tag", "release", "version"],
+    "IsCustom": false
+  },
+  {
+    "Name": "sfc /scannow",
+    "Category": "Windows Administration & Repair",
+    "Description": "System File Checker: Scan and repair corrupted Windows system files",
+    "Syntax": "sfc /scannow",
+    "Example": "sfc /scannow",
+    "Tags": ["repair", "corrupt", "windows", "admin", "system"],
+    "IsCustom": false
+  },
+  {
+    "Name": "DISM /Online /Cleanup-Image /RestoreHealth",
+    "Category": "Windows Administration & Repair",
+    "Description": "Repair Windows component store using Windows Update sources",
+    "Syntax": "DISM /Online /Cleanup-Image /RestoreHealth",
+    "Example": "DISM /Online /Cleanup-Image /RestoreHealth",
+    "Tags": ["dism", "repair", "windows", "admin", "fix"],
+    "IsCustom": false
+  },
+  {
+    "Name": "chkdsk C: /f /r",
+    "Category": "Windows Administration & Repair",
+    "Description": "Check disk for filesystem errors and locate bad sectors",
+    "Syntax": "chkdsk [drive:] [/f] [/r]",
+    "Example": "chkdsk C: /f /r",
+    "Tags": ["disk", "scan", "repair", "hdd", "ssd"],
+    "IsCustom": false
+  },
+  {
+    "Name": "gpupdate /force",
+    "Category": "Windows Administration & Repair",
+    "Description": "Force immediate reapplication of all Windows Group Policy settings",
+    "Syntax": "gpupdate [/force]",
+    "Example": "gpupdate /force",
+    "Tags": ["policy", "gpo", "group", "admin"],
+    "IsCustom": false
+  },
+  {
+    "Name": "powercfg /batteryreport",
+    "Category": "Windows Administration & Repair",
+    "Description": "Generate detailed HTML laptop battery health and life report",
+    "Syntax": "powercfg /batteryreport [/output <path>]",
+    "Example": "powercfg /batteryreport",
+    "Tags": ["battery", "hardware", "laptop", "power"],
+    "IsCustom": false
+  },
+  {
+    "Name": "powercfg /hibernate off",
+    "Category": "Windows Administration & Repair",
+    "Description": "Disable Windows hibernation to instantly reclaim gigabytes of disk space",
+    "Syntax": "powercfg /hibernate [on|off]",
+    "Example": "powercfg /hibernate off",
+    "Tags": ["disk", "space", "power", "clean"],
+    "IsCustom": false
+  },
+  {
+    "Name": "cleanmgr /sageset:1",
+    "Category": "Windows Administration & Repair",
+    "Description": "Open Windows Disk Cleanup with all advanced cleaning flags",
+    "Syntax": "cleanmgr [/sagerun:1]",
+    "Example": "cleanmgr /sageset:1",
+    "Tags": ["cleanup", "disk", "free", "temp"],
+    "IsCustom": false
+  },
+  {
+    "Name": "winver",
+    "Category": "Windows Administration & Repair",
+    "Description": "Display the About Windows dialog showing build and edition",
+    "Syntax": "winver",
+    "Example": "winver",
+    "Tags": ["version", "build", "windows", "os"],
+    "IsCustom": false
+  },
+  {
+    "Name": "msinfo32",
+    "Category": "Windows Administration & Repair",
+    "Description": "Launch System Information hardware and software diagnostic utility",
+    "Syntax": "msinfo32",
+    "Example": "msinfo32",
+    "Tags": ["hardware", "specs", "system", "info"],
+    "IsCustom": false
+  },
+  {
+    "Name": "shutdown /r /t 0",
+    "Category": "Windows Administration & Repair",
+    "Description": "Immediately reboot the computer without waiting",
+    "Syntax": "shutdown [/r] [/t seconds] [/f]",
+    "Example": "shutdown /r /t 0",
+    "Tags": ["restart", "reboot", "system"],
+    "IsCustom": false
+  },
+  {
+    "Name": "shutdown /s /t 0",
+    "Category": "Windows Administration & Repair",
+    "Description": "Immediately power off and shut down the computer",
+    "Syntax": "shutdown [/s] [/t seconds] [/f]",
+    "Example": "shutdown /s /t 0",
+    "Tags": ["poweroff", "shutdown", "exit"],
+    "IsCustom": false
+  },
+  {
+    "Name": "shutdown /a",
+    "Category": "Windows Administration & Repair",
+    "Description": "Abort and cancel a previously initiated timed system shutdown",
+    "Syntax": "shutdown /a",
+    "Example": "shutdown /a",
+    "Tags": ["cancel", "abort", "shutdown"],
+    "IsCustom": false
+  },
+  {
+    "Name": "ipconfig /all",
+    "Category": "Networking & Wi-Fi",
+    "Description": "Display full network adapter configuration, IP, and DNS",
+    "Syntax": "ipconfig [/all]",
+    "Example": "ipconfig /all",
+    "Tags": ["ip", "network", "adapter", "dns"],
+    "IsCustom": false
+  },
+  {
+    "Name": "ipconfig /flushdns",
+    "Category": "Networking & Wi-Fi",
+    "Description": "Flush and purge the DNS client resolver cache",
+    "Syntax": "ipconfig /flushdns",
+    "Example": "ipconfig /flushdns",
+    "Tags": ["dns", "flush", "cache", "network"],
+    "IsCustom": false
+  },
+  {
+    "Name": "ipconfig /release",
+    "Category": "Networking & Wi-Fi",
+    "Description": "Release the current DHCP IP address for active adapters",
+    "Syntax": "ipconfig /release",
+    "Example": "ipconfig /release",
+    "Tags": ["dhcp", "ip", "reset"],
+    "IsCustom": false
+  },
+  {
+    "Name": "ipconfig /renew",
+    "Category": "Networking & Wi-Fi",
+    "Description": "Renew the DHCP lease and request new IP from router",
+    "Syntax": "ipconfig /renew",
+    "Example": "ipconfig /renew",
+    "Tags": ["dhcp", "ip", "renew"],
+    "IsCustom": false
+  },
+  {
+    "Name": "netsh wlan show profiles",
+    "Category": "Networking & Wi-Fi",
+    "Description": "List all remembered and saved Wi-Fi networks on this PC",
+    "Syntax": "netsh wlan show profiles",
+    "Example": "netsh wlan show profiles",
+    "Tags": ["wifi", "wireless", "ssid", "network"],
+    "IsCustom": false
+  },
+  {
+    "Name": "netsh wlan show profile name key=clear",
+    "Category": "Networking & Wi-Fi",
+    "Description": "Reveal the saved plaintext Wi-Fi password for a specific network",
+    "Syntax": "netsh wlan show profile name=\"<SSID>\" key=clear",
+    "Example": "netsh wlan show profile name=\"HomeNetwork\" key=clear",
+    "Tags": ["wifi", "password", "key", "reveal"],
+    "IsCustom": false
+  },
+  {
+    "Name": "netsh int ip reset",
+    "Category": "Networking & Wi-Fi",
+    "Description": "Reset Windows TCP/IP network protocol stack to defaults",
+    "Syntax": "netsh int ip reset",
+    "Example": "netsh int ip reset",
+    "Tags": ["network", "reset", "tcp", "fix"],
+    "IsCustom": false
+  },
+  {
+    "Name": "netsh winsock reset",
+    "Category": "Networking & Wi-Fi",
+    "Description": "Reset Winsock catalog back to clean state (fixes connection errors)",
+    "Syntax": "netsh winsock reset",
+    "Example": "netsh winsock reset",
+    "Tags": ["winsock", "network", "socket", "reset"],
+    "IsCustom": false
+  },
+  {
+    "Name": "netstat -ano | findstr",
+    "Category": "Networking & Wi-Fi",
+    "Description": "Find which Process ID (PID) is listening on a specific TCP port",
+    "Syntax": "netstat -ano | findstr <port_number>",
+    "Example": "netstat -ano | findstr 8080",
+    "Tags": ["port", "listening", "pid", "network", "connections"],
+    "IsCustom": false
+  },
+  {
+    "Name": "netstat -abno",
+    "Category": "Networking & Wi-Fi",
+    "Description": "List all active TCP/UDP connections along with executable names",
+    "Syntax": "netstat -abno",
+    "Example": "netstat -abno",
+    "Tags": ["network", "connections", "traffic", "ports"],
+    "IsCustom": false
+  },
+  {
+    "Name": "ping 8.8.8.8",
+    "Category": "Networking & Wi-Fi",
+    "Description": "Test network latency and packet loss to Google Public DNS",
+    "Syntax": "ping <host_or_ip> [-n count] [-t]",
+    "Example": "ping 8.8.8.8 -n 4",
+    "Tags": ["latency", "icmp", "connection", "ping"],
+    "IsCustom": false
+  },
+  {
+    "Name": "tracert",
+    "Category": "Networking & Wi-Fi",
+    "Description": "Trace routing path hops to a destination IP or domain",
+    "Syntax": "tracert <host_or_ip>",
+    "Example": "tracert 1.1.1.1",
+    "Tags": ["hops", "route", "traceroute"],
+    "IsCustom": false
+  },
+  {
+    "Name": "nslookup",
+    "Category": "Networking & Wi-Fi",
+    "Description": "Query DNS servers for IP address mapping and MX/TXT records",
+    "Syntax": "nslookup <domain>",
+    "Example": "nslookup github.com",
+    "Tags": ["dns", "domain", "lookup"],
+    "IsCustom": false
+  },
+  {
+    "Name": "Test-NetConnection -Port",
+    "Category": "Networking & Wi-Fi",
+    "Description": "Test TCP port connectivity to remote server in PowerShell",
+    "Syntax": "powershell -Command \"Test-NetConnection -ComputerName <host> -Port <port>\"",
+    "Example": "powershell -Command \"Test-NetConnection -ComputerName google.com -Port 443\"",
+    "Tags": ["tcp", "port", "test", "network"],
+    "IsCustom": false
+  },
+  {
+    "Name": "curl -I",
+    "Category": "Networking & Wi-Fi",
+    "Description": "Fetch HTTP response status headers from a web server",
+    "Syntax": "curl -I <url>",
+    "Example": "curl -I https://api.github.com",
+    "Tags": ["http", "headers", "web", "api"],
+    "IsCustom": false
+  },
+  {
+    "Name": "tasklist",
+    "Category": "Processes & Services",
+    "Description": "Display currently active running processes and memory usage",
+    "Syntax": "tasklist [/v] [/fi \"filter\"]",
+    "Example": "tasklist /fi \"imagename eq node.exe\"",
+    "Tags": ["ps", "process", "tasks", "running"],
+    "IsCustom": false
+  },
+  {
+    "Name": "taskkill /F /PID",
+    "Category": "Processes & Services",
+    "Description": "Forcefully terminate a process by its numerical Process ID (PID)",
+    "Syntax": "taskkill /F /PID <pid>",
+    "Example": "taskkill /F /PID 1234",
+    "Tags": ["kill", "terminate", "stop", "pid"],
+    "IsCustom": false
+  },
+  {
+    "Name": "taskkill /F /IM explorer.exe & start explorer.exe",
+    "Category": "Processes & Services",
+    "Description": "Restart Windows File Explorer shell and taskbar",
+    "Syntax": "taskkill /F /IM explorer.exe & start explorer.exe",
+    "Example": "taskkill /F /IM explorer.exe & start explorer.exe",
+    "Tags": ["restart", "explorer", "taskbar", "freeze"],
+    "IsCustom": false
+  },
+  {
+    "Name": "net start",
+    "Category": "Processes & Services",
+    "Description": "List all currently running Windows background services",
+    "Syntax": "net start",
+    "Example": "net start",
+    "Tags": ["services", "running", "background"],
+    "IsCustom": false
+  },
+  {
+    "Name": "net stop",
+    "Category": "Processes & Services",
+    "Description": "Stop an active Windows background service",
+    "Syntax": "net stop <service_name>",
+    "Example": "net stop wuauserv",
+    "Tags": ["stop", "service", "admin"],
+    "IsCustom": false
+  },
+  {
+    "Name": "sc query",
+    "Category": "Processes & Services",
+    "Description": "Query detailed status of all registered Windows system services",
+    "Syntax": "sc query [type= service] [state= all]",
+    "Example": "sc query state= all",
+    "Tags": ["sc", "service", "status"],
+    "IsCustom": false
+  },
+  {
+    "Name": "resmon",
+    "Category": "Processes & Services",
+    "Description": "Open the Windows Resource Monitor for live CPU, disk, network graphs",
+    "Syntax": "resmon",
+    "Example": "resmon",
+    "Tags": ["monitor", "cpu", "ram", "performance"],
+    "IsCustom": false
+  },
+  {
+    "Name": "winget search",
+    "Category": "Packages & Developer Tools",
+    "Description": "Search the official Windows Package Manager software repository",
+    "Syntax": "winget search <app_name>",
+    "Example": "winget search vscode",
+    "Tags": ["winget", "install", "software", "store"],
+    "IsCustom": false
+  },
+  {
+    "Name": "winget install",
+    "Category": "Packages & Developer Tools",
+    "Description": "Install software package silently via Windows Package Manager",
+    "Syntax": "winget install <app_id>",
+    "Example": "winget install Microsoft.VisualStudioCode",
+    "Tags": ["winget", "install", "app"],
+    "IsCustom": false
+  },
+  {
+    "Name": "winget upgrade --all",
+    "Category": "Packages & Developer Tools",
+    "Description": "Upgrade all installed Windows applications to newest versions",
+    "Syntax": "winget upgrade --all",
+    "Example": "winget upgrade --all",
+    "Tags": ["winget", "update", "upgrade", "all"],
+    "IsCustom": false
+  },
+  {
+    "Name": "wsl -l -v",
+    "Category": "Packages & Developer Tools",
+    "Description": "List installed Windows Subsystem for Linux (WSL) distributions",
+    "Syntax": "wsl -l -v",
+    "Example": "wsl -l -v",
+    "Tags": ["wsl", "linux", "ubuntu", "distro"],
+    "IsCustom": false
+  },
+  {
+    "Name": "wsl --shutdown",
+    "Category": "Packages & Developer Tools",
+    "Description": "Shut down all running WSL Linux virtual machines to free RAM",
+    "Syntax": "wsl --shutdown",
+    "Example": "wsl --shutdown",
+    "Tags": ["wsl", "shutdown", "stop", "ram"],
+    "IsCustom": false
+  },
+  {
+    "Name": "dotnet run",
+    "Category": "Packages & Developer Tools",
+    "Description": "Run .NET source code without explicit build steps",
+    "Syntax": "dotnet run [--project <path>]",
+    "Example": "dotnet run",
+    "Tags": ["dotnet", "c#", "run"],
+    "IsCustom": false
+  },
+  {
+    "Name": "dotnet watch run",
+    "Category": "Packages & Developer Tools",
+    "Description": "Run .NET project with Hot Reload on code changes",
+    "Syntax": "dotnet watch run",
+    "Example": "dotnet watch run",
+    "Tags": ["dotnet", "watch", "hotreload"],
+    "IsCustom": false
+  },
+  {
+    "Name": "dotnet publish",
+    "Category": "Packages & Developer Tools",
+    "Description": "Publish self-contained single-file executable for distribution",
+    "Syntax": "dotnet publish -c Release -r win-x64 --self-contained -p:PublishSingleFile=true",
+    "Example": "dotnet publish -c Release -r win-x64 --self-contained -p:PublishSingleFile=true",
+    "Tags": ["dotnet", "publish", "singlefile", "exe"],
+    "IsCustom": false
+  },
+  {
+    "Name": "npm install",
+    "Category": "Packages & Developer Tools",
+    "Description": "Install Node dependencies defined in package.json",
+    "Syntax": "npm install [package_name] [--save-dev]",
+    "Example": "npm install",
+    "Tags": ["npm", "node", "javascript"],
+    "IsCustom": false
+  },
+  {
+    "Name": "npm run dev",
+    "Category": "Packages & Developer Tools",
+    "Description": "Execute dev script in package.json",
+    "Syntax": "npm run <script>",
+    "Example": "npm run dev",
+    "Tags": ["npm", "run", "dev"],
+    "IsCustom": false
+  },
+  {
+    "Name": "pip install -r",
+    "Category": "Packages & Developer Tools",
+    "Description": "Install Python dependencies from requirements.txt",
+    "Syntax": "pip install -r requirements.txt",
+    "Example": "pip install -r requirements.txt",
+    "Tags": ["python", "pip", "dependencies"],
+    "IsCustom": false
+  },
+  {
+    "Name": "code .",
+    "Category": "Packages & Developer Tools",
+    "Description": "Open current directory in Visual Studio Code",
+    "Syntax": "code [path_or_file]",
+    "Example": "code .",
+    "Tags": ["vscode", "editor", "ide"],
+    "IsCustom": false
+  },
+  {
+    "Name": "gh auth login",
+    "Category": "Packages & Developer Tools",
+    "Description": "Authenticate GitHub CLI with your GitHub user account",
+    "Syntax": "gh auth login",
+    "Example": "gh auth login",
+    "Tags": ["github", "gh", "auth"],
+    "IsCustom": false
+  },
+  {
+    "Name": "docker ps -a",
     "Category": "Docker & Containers",
-    "Description": "List all active running Docker containers",
+    "Description": "List all Docker containers including running and stopped",
     "Syntax": "docker ps [-a]",
     "Example": "docker ps -a",
     "Tags": ["docker", "container", "status"],
@@ -182,223 +767,106 @@
   {
     "Name": "docker compose up -d",
     "Category": "Docker & Containers",
-    "Description": "Build, (re)create, and start containers in the background",
+    "Description": "Build, create, and start container services in the background",
     "Syntax": "docker compose up [-d] [--build]",
     "Example": "docker compose up -d",
-    "Tags": ["docker", "compose", "start", "daemon"],
+    "Tags": ["docker", "compose", "start"],
     "IsCustom": false
   },
   {
-    "Name": "docker compose down",
+    "Name": "docker compose down -v",
     "Category": "Docker & Containers",
-    "Description": "Stop and remove containers, networks, and images created by up",
+    "Description": "Stop and remove container stack along with attached volumes",
     "Syntax": "docker compose down [-v]",
-    "Example": "docker compose down",
+    "Example": "docker compose down -v",
     "Tags": ["docker", "compose", "stop"],
     "IsCustom": false
   },
   {
     "Name": "docker logs -f",
     "Category": "Docker & Containers",
-    "Description": "Fetch and stream live logs of a container",
-    "Syntax": "docker logs -f <container_name_or_id>",
-    "Example": "docker logs -f web_api",
+    "Description": "Stream real-time log output from a container",
+    "Syntax": "docker logs -f [--tail count] <container>",
+    "Example": "docker logs -f --tail 100 myapp",
     "Tags": ["docker", "logs", "monitor"],
     "IsCustom": false
   },
   {
-    "Name": "docker build -t",
+    "Name": "docker exec -it",
     "Category": "Docker & Containers",
-    "Description": "Build a Docker image from a Dockerfile",
-    "Syntax": "docker build -t <image_name>:<tag> <context_path>",
-    "Example": "docker build -t myapp:latest .",
-    "Tags": ["docker", "build", "image"],
+    "Description": "Open interactive shell inside a running container",
+    "Syntax": "docker exec -it <container> <sh_or_bash>",
+    "Example": "docker exec -it web_app sh",
+    "Tags": ["docker", "shell", "bash"],
     "IsCustom": false
   },
   {
-    "Name": "docker system prune -a",
+    "Name": "docker system prune -a --volumes",
     "Category": "Docker & Containers",
-    "Description": "Remove all unused containers, networks, images, and volumes",
-    "Syntax": "docker system prune [-a] [--volumes]",
-    "Example": "docker system prune -a",
-    "Tags": ["docker", "clean", "cleanup", "prune"],
+    "Description": "Purge all unused Docker images, stopped containers, and volumes",
+    "Syntax": "docker system prune -a [--volumes]",
+    "Example": "docker system prune -a --volumes",
+    "Tags": ["docker", "clean", "purge", "prune"],
     "IsCustom": false
   },
   {
-    "Name": "ipconfig /all",
-    "Category": "Networking",
-    "Description": "Display full network adapter configuration, IP, and DNS",
-    "Syntax": "ipconfig [/all] [/flushdns]",
-    "Example": "ipconfig /flushdns",
-    "Tags": ["ip", "network", "adapter", "dns"],
-    "IsCustom": false
-  },
-  {
-    "Name": "ping",
-    "Category": "Networking",
-    "Description": "Send ICMP echo requests to test network connectivity to host",
-    "Syntax": "ping <host_or_ip> [-n count]",
-    "Example": "ping google.com -n 4",
-    "Tags": ["network", "latency", "icmp", "connection"],
-    "IsCustom": false
-  },
-  {
-    "Name": "curl -I",
-    "Category": "Networking",
-    "Description": "Fetch HTTP response headers from a web server",
-    "Syntax": "curl -I <url>",
-    "Example": "curl -I https://api.github.com",
-    "Tags": ["http", "web", "headers", "api"],
-    "IsCustom": false
-  },
-  {
-    "Name": "netstat -ano",
-    "Category": "Networking",
-    "Description": "Display active TCP connections and listening ports with PID",
-    "Syntax": "netstat -ano | findstr <port>",
-    "Example": "netstat -ano | findstr 8080",
-    "Tags": ["network", "ports", "connections", "tcp"],
-    "IsCustom": false
-  },
-  {
-    "Name": "tracert",
-    "Category": "Networking",
-    "Description": "Trace network route hops to a destination host",
-    "Syntax": "tracert <host_or_ip>",
-    "Example": "tracert 1.1.1.1",
-    "Tags": ["network", "route", "hops", "traceroute"],
-    "IsCustom": false
-  },
-  {
-    "Name": "tasklist",
-    "Category": "Process & System",
-    "Description": "Display a list of currently running processes on the computer",
-    "Syntax": "tasklist [/v] [/fi \"filter\"]",
-    "Example": "tasklist /fi \"imagename eq node.exe\"",
-    "Tags": ["ps", "process", "tasks", "running"],
-    "IsCustom": false
-  },
-  {
-    "Name": "taskkill /F /PID",
-    "Category": "Process & System",
-    "Description": "Forcefully terminate a process by its Process ID (PID)",
-    "Syntax": "taskkill /F /PID <pid>",
-    "Example": "taskkill /F /PID 1234",
-    "Tags": ["kill", "stop", "terminate", "pid"],
-    "IsCustom": false
-  },
-  {
-    "Name": "systeminfo",
-    "Category": "Process & System",
-    "Description": "Display detailed OS, hardware, BIOS, and memory configuration",
-    "Syntax": "systeminfo",
-    "Example": "systeminfo",
-    "Tags": ["hardware", "os", "specs", "ram", "cpu"],
-    "IsCustom": false
-  },
-  {
-    "Name": "dotnet run",
-    "Category": "Package Managers & Build",
-    "Description": "Run source code without explicit compile or launch steps",
-    "Syntax": "dotnet run [--project <path>]",
-    "Example": "dotnet run",
-    "Tags": ["dotnet", "csharp", "run", "c#"],
-    "IsCustom": false
-  },
-  {
-    "Name": "dotnet build",
-    "Category": "Package Managers & Build",
-    "Description": "Build a project and all of its dependencies into binaries",
-    "Syntax": "dotnet build [-c Release]",
-    "Example": "dotnet build -c Release",
-    "Tags": ["dotnet", "compile", "build"],
-    "IsCustom": false
-  },
-  {
-    "Name": "dotnet publish",
-    "Category": "Package Managers & Build",
-    "Description": "Publish application and its dependencies to a folder for deployment",
-    "Syntax": "dotnet publish -c Release -r win-x64 --self-contained",
-    "Example": "dotnet publish -c Release -r win-x64 --self-contained -p:PublishSingleFile=true",
-    "Tags": ["dotnet", "publish", "release", "singlefile", "exe"],
-    "IsCustom": false
-  },
-  {
-    "Name": "npm install",
-    "Category": "Package Managers & Build",
-    "Description": "Install dependencies defined in package.json",
-    "Syntax": "npm install [package_name] [--save-dev]",
-    "Example": "npm install",
-    "Tags": ["npm", "node", "javascript", "packages"],
-    "IsCustom": false
-  },
-  {
-    "Name": "npm run dev",
-    "Category": "Package Managers & Build",
-    "Description": "Execute the dev script defined in package.json",
-    "Syntax": "npm run <script_name>",
-    "Example": "npm run dev",
-    "Tags": ["npm", "run", "dev", "server"],
-    "IsCustom": false
-  },
-  {
-    "Name": "pip install",
-    "Category": "Package Managers & Build",
-    "Description": "Install Python packages from PyPI or requirements file",
-    "Syntax": "pip install -r requirements.txt",
-    "Example": "pip install -r requirements.txt",
-    "Tags": ["python", "pip", "package"],
-    "IsCustom": false
-  },
-  {
-    "Name": "python -m venv .venv",
-    "Category": "Package Managers & Build",
-    "Description": "Create a virtual isolated Python environment in .venv folder",
-    "Syntax": "python -m venv <directory>",
-    "Example": "python -m venv .venv",
-    "Tags": ["python", "venv", "virtualenv"],
-    "IsCustom": false
-  },
-  {
-    "Name": "cls",
+    "Name": "admin <command>",
     "Category": "PlainShell Built-ins",
-    "Description": "Clear the terminal screen and redraw the header",
-    "Syntax": "cls",
-    "Example": "cls",
-    "Tags": ["clear", "screen", "reset"],
+    "Description": "Run any command elevated as Administrator with UAC prompt",
+    "Syntax": "admin <command_and_args>",
+    "Example": "admin sfc /scannow",
+    "Tags": ["admin", "sudo", "elevation", "uac"],
+    "IsCustom": false
+  },
+  {
+    "Name": "sudo <command>",
+    "Category": "PlainShell Built-ins",
+    "Description": "Alias to run any command as Administrator with UAC prompt",
+    "Syntax": "sudo <command_and_args>",
+    "Example": "sudo netsh winsock reset",
+    "Tags": ["sudo", "admin", "elevation"],
     "IsCustom": false
   },
   {
     "Name": ":catalog",
     "Category": "PlainShell Built-ins",
-    "Description": "Open the full-screen categorized Command Palette (or press F1 / Ctrl+P)",
+    "Description": "Open live searchable Categorized Command Palette [F1 / Ctrl+P]",
     "Syntax": ":catalog",
     "Example": ":catalog",
-    "Tags": ["catalog", "palette", "commands", "menu", "search", "f1"],
-    "IsCustom": false
-  },
-  {
-    "Name": ":help",
-    "Category": "PlainShell Built-ins",
-    "Description": "Display PlainShell keyboard shortcuts and tips",
-    "Syntax": ":help",
-    "Example": ":help",
-    "Tags": ["help", "guide", "keys", "shortcuts"],
+    "Tags": ["catalog", "palette", "menu", "search", "f1"],
     "IsCustom": false
   },
   {
     "Name": ":history",
     "Category": "PlainShell Built-ins",
-    "Description": "View previously executed commands in this session",
+    "Description": "View history of executed commands in this session",
     "Syntax": ":history",
     "Example": ":history",
     "Tags": ["history", "past", "log"],
     "IsCustom": false
   },
   {
+    "Name": ":help",
+    "Category": "PlainShell Built-ins",
+    "Description": "Display PlainShell keyboard shortcuts and controls",
+    "Syntax": ":help",
+    "Example": ":help",
+    "Tags": ["help", "guide", "keys"],
+    "IsCustom": false
+  },
+  {
+    "Name": "cls",
+    "Category": "PlainShell Built-ins",
+    "Description": "Clear terminal screen and redraw welcome banner",
+    "Syntax": "cls",
+    "Example": "cls",
+    "Tags": ["clear", "screen", "reset"],
+    "IsCustom": false
+  },
+  {
     "Name": "exit",
     "Category": "PlainShell Built-ins",
-    "Description": "Exit the PlainShell terminal application",
+    "Description": "Exit PlainShell application",
     "Syntax": "exit",
     "Example": "exit",
     "Tags": ["quit", "close", "bye"],

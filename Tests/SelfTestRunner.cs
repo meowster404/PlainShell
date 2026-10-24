@@ -75,26 +75,41 @@ public static class SelfTestRunner
             var cdSuggestions = engine.GetSuggestions("cd ", 3, cwd);
             Assert("Suggestions for 'cd ' returns directories", cdSuggestions.Count > 0 && cdSuggestions.All(s => s.Kind == SuggestionKind.Directory));
 
-            // Test 7: SuggestionEngine - Git Subcommands
+            // Test 7: SuggestionEngine - Git Subcommands & Git Config
             var gitSuggestions = engine.GetSuggestions("git ", 4, cwd);
             Assert("Suggestions for 'git ' returns subcommands", gitSuggestions.Any(s => s.DisplayText == "status" && s.Kind == SuggestionKind.Subcommand));
 
-            // Test 8: SuggestionEngine - Docker Subcommands
+            var gitConfigSuggestions = engine.GetSuggestions("git config ", 11, cwd);
+            Assert("Suggestions for 'git config ' returns user.name", gitConfigSuggestions.Any(s => s.DisplayText.Contains("user.name")));
+
+            // Test 8: Empty buffer returns NO suggestions (allows instant history browsing)
+            var emptySuggestions = engine.GetSuggestions("", 0, cwd);
+            Assert("Empty buffer returns 0 suggestions for clean prompt", emptySuggestions.Count == 0);
+
+            // Test 9: SuggestionEngine - Docker Subcommands
             var dockerSuggestions = engine.GetSuggestions("docker ", 7, cwd);
             Assert("Suggestions for 'docker ' returns subcommands", dockerSuggestions.Any(s => s.DisplayText == "ps" && s.Kind == SuggestionKind.Subcommand));
 
-            // Test 9: Shell Context Directory & History
+            // Test 10: Shell Context Directory & History Reset
             var context = new ShellContext();
             Assert("ShellContext initializes current directory", Directory.Exists(context.CurrentDirectory));
             context.AddHistory("echo hello");
             context.AddHistory("git status");
             Assert("History tracks commands", context.History.Count == 2);
-            Assert("History back navigates correctly", context.GetPreviousHistory() == "git status");
-            Assert("History back navigates to first", context.GetPreviousHistory() == "echo hello");
+            context.ResetHistoryIndex();
+            Assert("History back navigates to most recent command", context.GetPreviousHistory() == "git status");
+            Assert("History back navigates to previous command", context.GetPreviousHistory() == "echo hello");
 
-            // Test 10: Git Branch Detection
+            // Test 11: Git Branch Detection
             string? branch = context.GetGitBranch();
-            Assert("Git branch inspection succeeds or returns null cleanly", true, $"Detected branch: {branch ?? "none"}");
+            Assert("Git branch inspection succeeds", true, $"Detected branch: {branch ?? "none"}");
+
+            // Test 12: Advanced Daily Windows Commands
+            var sfcMatch = catalog.Search("sfc");
+            Assert("Catalog includes Windows sfc repair command", sfcMatch.Any(c => c.Name.Contains("sfc")));
+
+            var gitConfigMatch = catalog.Search("user.name");
+            Assert("Catalog includes git config user.name", gitConfigMatch.Any(c => c.Name.Contains("user.name")));
         }
         catch (Exception ex)
         {

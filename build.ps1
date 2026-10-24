@@ -12,6 +12,10 @@ Write-Host "==========================================" -ForegroundColor Cyan
 Write-Host " Building PlainShell Single-File Executable " -ForegroundColor Cyan
 Write-Host "==========================================" -ForegroundColor Cyan
 
+# Stop any active PlainShell instances if currently running
+Get-Process -Name PlainShell -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+Start-Sleep -Milliseconds 300
+
 # Ensure clean output directory
 if (Test-Path $OutputDir) {
     Remove-Item -Recurse -Force $OutputDir

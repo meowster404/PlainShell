@@ -1,7 +1,15 @@
+using System.Text;
 using PlainShell.Core;
 using Spectre.Console;
 
 namespace PlainShell.Catalog;
+
+public class PaletteResult
+{
+    public string? Command { get; set; }
+    public bool AsAdmin { get; set; }
+    public bool InsertOnly { get; set; }
+}
 
 public class PaletteView
 {
@@ -12,126 +20,228 @@ public class PaletteView
         _catalog = catalog;
     }
 
-    public string? Show()
+    public PaletteResult? Show()
     {
-        ConsoleHelper.SafeClear();
-
-        AnsiConsole.Write(
-            new Rule("[bold cyan]PlainShell Categorized Command Palette[/]")
-                .LeftJustified()
-                .RuleStyle("steelBlue1"));
-
-        var categories = new List<string> { "★ All Categories" };
+        var categories = new List<string> { "★ All" };
         categories.AddRange(_catalog.GetCategories());
-        categories.Add("+ Add Custom Command");
-        categories.Add("← Back to Terminal");
+        int selectedCategoryIndex = 0;
 
-        var selectedCategory = AnsiConsole.Prompt(
-            new SelectionPrompt<string>()
-                .Title("[bold white]Choose a Category to explore or filter commands:[/]")
-                .PageSize(12)
-                .HighlightStyle(new Style(Color.Black, Color.Cyan1, Decoration.Bold))
-                .AddChoices(categories));
+        var searchBuffer = new StringBuilder();
+        int selectedCommandIndex = 0;
 
-        if (selectedCategory == "← Back to Terminal")
-        {
-            ConsoleHelper.SafeClear();
-            return null;
-        }
-
-        if (selectedCategory == "+ Add Custom Command")
-        {
-            AddNewCustomCommand();
-            return null;
-        }
-
-        string? categoryFilter = selectedCategory == "★ All Categories"
-            ? null
-            : selectedCategory;
-
-        return ShowCommandList(categoryFilter);
-    }
-
-    private string? ShowCommandList(string? categoryFilter)
-    {
         while (true)
         {
             ConsoleHelper.SafeClear();
-            string headerText = categoryFilter != null
-                ? $"Commands in [bold yellow]{categoryFilter}[/]"
-                : "All Registered Commands";
 
-            AnsiConsole.MarkupLine($"[bold cyan]{headerText}[/]");
-            AnsiConsole.MarkupLine("[grey]Type to search by name, description, or keyword. Select to run or edit.[/]\n");
+            string currentCategory = categories[selectedCategoryIndex];
+            string? categoryFilter = currentCategory == "★ All" ? null : currentCategory;
 
-            // Option 1: Search query prompt or list
-            string query = AnsiConsole.Prompt(
-                new TextPrompt<string>("[cyan]Search query[/] [grey](press Enter to see all):[/]")
-                    .AllowEmpty());
+            // Header Banner
+            AnsiConsole.Write(
+                new Rule("[bold cyan]PlainShell Live Command Palette & Catalog[/]")
+                    .LeftJustified()
+                    .RuleStyle("steelBlue1"));
 
-            var matches = _catalog.Search(query, categoryFilter);
+            // Category Bar
+            RenderCategoryTabs(categories, selectedCategoryIndex);
 
+            // Live Search Query Bar
+            AnsiConsole.Markup($"[bold cyan]🔍 Search:[/] [bold white]{Markup.Escape(searchBuffer.ToString())}[/][blink]█[/]\n");
+            AnsiConsole.WriteLine();
+
+            // Query matching commands live
+            var matches = _catalog.Search(searchBuffer.ToString(), categoryFilter);
+
+            // Clamp selection index
             if (matches.Count == 0)
             {
-                AnsiConsole.MarkupLine("[yellow]No commands matched your search.[/]\n");
-                if (AnsiConsole.Confirm("Try another search?", defaultValue: true))
+                selectedCommandIndex = 0;
+            }
+            else if (selectedCommandIndex >= matches.Count)
+            {
+                selectedCommandIndex = matches.Count - 1;
+            }
+            else if (selectedCommandIndex < 0)
+            {
+                selectedCommandIndex = 0;
+            }
+
+            // Render live commands table
+            RenderLiveResults(matches, selectedCommandIndex);
+
+            // Footer instructions
+            AnsiConsole.WriteLine();
+            AnsiConsole.MarkupLine("[grey]Controls: [/][cyan][↑/↓][/][grey] Select command  [/][cyan][Tab / ← / →][/][grey] Switch category  [/][cyan][Enter][/][grey] Action menu  [/][cyan][Esc][/][grey] Exit[/]");
+
+            // Wait for keypress
+            var keyInfo = Console.ReadKey(intercept: true);
+
+            // Handle Esc
+            if (keyInfo.Key == ConsoleKey.Escape)
+            {
+                ConsoleHelper.SafeClear();
+                return null;
+            }
+
+            // Handle Tab or RightArrow (switch category)
+            if (keyInfo.Key == ConsoleKey.Tab)
+            {
+                if (keyInfo.Modifiers.HasFlag(ConsoleModifiers.Shift))
                 {
+                    selectedCategoryIndex = (selectedCategoryIndex - 1 + categories.Count) % categories.Count;
+                }
+                else
+                {
+                    selectedCategoryIndex = (selectedCategoryIndex + 1) % categories.Count;
+                }
+                selectedCommandIndex = 0;
+                continue;
+            }
+
+            // Handle Enter (Open action menu for selected command)
+            if (keyInfo.Key == ConsoleKey.Enter)
+            {
+                if (matches.Count > 0 && selectedCommandIndex >= 0 && selectedCommandIndex < matches.Count)
+                {
+                    var selected = matches[selectedCommandIndex];
+                    var actionResult = ShowActionMenu(selected);
+                    if (actionResult != null)
+                    {
+                        ConsoleHelper.SafeClear();
+                        return actionResult;
+                    }
+                    // Else back to live search
                     continue;
                 }
-                return null;
+                continue;
             }
 
-            var prompt = new SelectionPrompt<CommandItem>()
-                .Title("[bold white]Select a command from the catalog:[/]")
-                .PageSize(15)
-                .HighlightStyle(new Style(Color.Black, Color.Cyan1, Decoration.Bold))
-                .UseConverter(c => Markup.Escape($"[{c.Category}] {c.Name} - {c.Description}"));
-
-            foreach (var cmd in matches)
+            // Handle Up / Down arrows (navigate live results)
+            if (keyInfo.Key == ConsoleKey.DownArrow)
             {
-                prompt.AddChoice(cmd);
+                if (matches.Count > 0)
+                {
+                    selectedCommandIndex = (selectedCommandIndex + 1) % matches.Count;
+                }
+                continue;
             }
 
-            var selectedCommand = AnsiConsole.Prompt(prompt);
-
-            // Display rich command details
-            ConsoleHelper.SafeClear();
-            DisplayCommandDetails(selectedCommand);
-
-            var action = AnsiConsole.Prompt(
-                new SelectionPrompt<string>()
-                    .Title("[bold white]What would you like to do with this command?[/]")
-                    .AddChoices(new[]
-                    {
-                        "▶ Run Immediately",
-                        "✎ Insert into Command Line for Editing",
-                        "🔍 Search Again",
-                        "← Back to Shell"
-                    }));
-
-            if (action.StartsWith("▶"))
+            if (keyInfo.Key == ConsoleKey.UpArrow)
             {
-                ConsoleHelper.SafeClear();
-                return selectedCommand.Name;
+                if (matches.Count > 0)
+                {
+                    selectedCommandIndex = (selectedCommandIndex - 1 + matches.Count) % matches.Count;
+                }
+                continue;
             }
 
-            if (action.StartsWith("✎"))
+            // Handle Left / Right arrow (category cycling if search empty)
+            if (searchBuffer.Length == 0)
             {
-                ConsoleHelper.SafeClear();
-                // Return marked command with prefix for insertion
-                return "INSERT:" + selectedCommand.Name;
+                if (keyInfo.Key == ConsoleKey.RightArrow)
+                {
+                    selectedCategoryIndex = (selectedCategoryIndex + 1) % categories.Count;
+                    selectedCommandIndex = 0;
+                    continue;
+                }
+                if (keyInfo.Key == ConsoleKey.LeftArrow)
+                {
+                    selectedCategoryIndex = (selectedCategoryIndex - 1 + categories.Count) % categories.Count;
+                    selectedCommandIndex = 0;
+                    continue;
+                }
             }
 
-            if (action.StartsWith("←"))
+            // Handle Backspace
+            if (keyInfo.Key == ConsoleKey.Backspace)
             {
-                ConsoleHelper.SafeClear();
-                return null;
+                if (searchBuffer.Length > 0)
+                {
+                    searchBuffer.Remove(searchBuffer.Length - 1, 1);
+                    selectedCommandIndex = 0;
+                }
+                continue;
+            }
+
+            // Printable character -> Append to search query
+            if (!char.IsControl(keyInfo.KeyChar))
+            {
+                searchBuffer.Append(keyInfo.KeyChar);
+                selectedCommandIndex = 0;
             }
         }
     }
 
-    private void DisplayCommandDetails(CommandItem cmd)
+    private static void RenderCategoryTabs(List<string> categories, int selectedIndex)
     {
+        var sb = new StringBuilder();
+        for (int i = 0; i < categories.Count; i++)
+        {
+            if (i == selectedIndex)
+            {
+                sb.Append($"[bold black on cyan] {Markup.Escape(categories[i])} [/] ");
+            }
+            else
+            {
+                sb.Append($"[grey on grey15] {Markup.Escape(categories[i])} [/] ");
+            }
+        }
+        AnsiConsole.MarkupLine(sb.ToString());
+        AnsiConsole.WriteLine();
+    }
+
+    private static void RenderLiveResults(List<CommandItem> matches, int selectedIndex)
+    {
+        if (matches.Count == 0)
+        {
+            AnsiConsole.MarkupLine("[yellow]No commands matched your search query in this category.[/]");
+            return;
+        }
+
+        var table = new Table().Border(TableBorder.Rounded);
+        table.AddColumn(new TableColumn("[bold grey]Category[/]").Width(22));
+        table.AddColumn(new TableColumn("[bold cyan]Command[/]").Width(32));
+        table.AddColumn(new TableColumn("[bold white]Description[/]"));
+
+        int pageSize = 12;
+        int startIndex = Math.Max(0, Math.Min(selectedIndex - (pageSize / 2), matches.Count - pageSize));
+        int endIndex = Math.Min(matches.Count, startIndex + pageSize);
+
+        for (int i = startIndex; i < endIndex; i++)
+        {
+            var cmd = matches[i];
+            bool isSelected = i == selectedIndex;
+
+            string catPart = Markup.Escape(cmd.Category);
+            string namePart = Markup.Escape(cmd.Name);
+            string descPart = Markup.Escape(cmd.Description);
+
+            if (isSelected)
+            {
+                table.AddRow(
+                    $"[bold cyan]▶ {catPart}[/]",
+                    $"[bold black on cyan] {namePart} [/]",
+                    $"[bold white]{descPart}[/]"
+                );
+            }
+            else
+            {
+                table.AddRow(
+                    $"[grey]{catPart}[/]",
+                    $"[bold white]{namePart}[/]",
+                    $"[grey]{descPart}[/]"
+                );
+            }
+        }
+
+        AnsiConsole.Write(table);
+        AnsiConsole.MarkupLine($"[grey]Showing {startIndex + 1}-{endIndex} of {matches.Count} matching commands[/]");
+    }
+
+    private static PaletteResult? ShowActionMenu(CommandItem cmd)
+    {
+        ConsoleHelper.SafeClear();
+
         var grid = new Grid();
         grid.AddColumn(new GridColumn().NoWrap().PadRight(2));
         grid.AddColumn(new GridColumn());
@@ -149,7 +259,7 @@ public class PaletteView
 
         var panel = new Panel(grid)
         {
-            Header = new PanelHeader("[bold white] Command Information [/]"),
+            Header = new PanelHeader("[bold white] Command Selected [/]"),
             Border = BoxBorder.Rounded,
             BorderStyle = new Style(Color.SteelBlue1),
             Padding = new Padding(1, 1, 1, 1)
@@ -157,36 +267,33 @@ public class PaletteView
 
         AnsiConsole.Write(panel);
         AnsiConsole.WriteLine();
-    }
 
-    private void AddNewCustomCommand()
-    {
-        ConsoleHelper.SafeClear();
-        AnsiConsole.Write(new Rule("[bold green]Add Custom Command to PlainShell[/]").LeftJustified());
+        var action = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title("[bold white]Choose an action:[/]")
+                .AddChoices(new[]
+                {
+                    "▶ Run Normally (CMD)",
+                    "🛡️ Run as Administrator (Elevated UAC)",
+                    "✎ Insert into Command Line for Editing",
+                    "← Back to Search"
+                }));
 
-        string name = AnsiConsole.Ask<string>("Enter command [cyan]Name[/] (e.g. `docker compose logs`):");
-        string category = AnsiConsole.Ask<string>("Enter [cyan]Category[/] (e.g. `Work Projects`, `Docker`, `Dev`):", "Custom User Commands");
-        string desc = AnsiConsole.Ask<string>("Enter [cyan]Description[/]:");
-        string syntax = AnsiConsole.Ask<string>("Enter [cyan]Syntax[/] (or press Enter to match name):", name);
-        string example = AnsiConsole.Ask<string>("Enter [cyan]Example[/]:", name);
-        string tagsStr = AnsiConsole.Ask<string>("Enter [cyan]Tags[/] (comma-separated):", "");
-
-        var tags = tagsStr.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries).ToList();
-
-        var newItem = new CommandItem
+        if (action.StartsWith("▶"))
         {
-            Name = name,
-            Category = category,
-            Description = desc,
-            Syntax = syntax,
-            Example = example,
-            Tags = tags,
-            IsCustom = true
-        };
+            return new PaletteResult { Command = cmd.Name, AsAdmin = false, InsertOnly = false };
+        }
 
-        _catalog.AddCustomCommand(newItem);
-        AnsiConsole.MarkupLine("[bold green]✓ Custom command saved successfully![/]\n");
-        Thread.Sleep(1200);
-        ConsoleHelper.SafeClear();
+        if (action.Contains("Administrator"))
+        {
+            return new PaletteResult { Command = cmd.Name, AsAdmin = true, InsertOnly = false };
+        }
+
+        if (action.StartsWith("✎"))
+        {
+            return new PaletteResult { Command = cmd.Name, AsAdmin = false, InsertOnly = true };
+        }
+
+        return null; // Back to search
     }
 }

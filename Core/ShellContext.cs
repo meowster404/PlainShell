@@ -41,6 +41,11 @@ public class ShellContext
         _historyIndex = _history.Count;
     }
 
+    public void ResetHistoryIndex()
+    {
+        _historyIndex = _history.Count;
+    }
+
     public string? GetPreviousHistory()
     {
         if (_history.Count == 0) return null;

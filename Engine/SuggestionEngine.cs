@@ -12,38 +12,49 @@ public class SuggestionEngine
         ["git"] = new()
         {
             ("status", "Show working tree and modified files"),
+            ("config --global user.name", "Set global author name for all commits"),
+            ("config --global user.email", "Set global author email address"),
+            ("config --list --show-origin", "List all active Git configuration settings"),
             ("add .", "Stage all changes in current repository"),
             ("commit -m", "Commit staged changes with message"),
             ("push", "Push commits to remote repository"),
             ("pull", "Fetch and merge remote changes"),
-            ("log --oneline -n 10", "View last 10 commits compactly"),
+            ("log --graph --oneline --all", "Visual commit history tree across branches"),
             ("diff", "Show unstaged changes in working tree"),
+            ("diff --cached", "Show changes staged for next commit"),
+            ("remote -v", "List remote repositories with URLs"),
+            ("remote add origin", "Link local repository to remote Git URL"),
             ("checkout -b", "Create and switch to a new branch"),
             ("branch -a", "List local and remote branches"),
+            ("restore --staged", "Unstage file changes without losing work"),
+            ("reset --soft HEAD~1", "Undo last commit but keep changes staged"),
             ("stash", "Temporarily stash modified work"),
             ("stash pop", "Reapply most recent stashed changes"),
-            ("fetch", "Download objects and refs from another repo"),
-            ("reset --soft HEAD~1", "Undo last commit but keep changes staged")
+            ("cherry-pick", "Apply commit from another branch"),
+            ("clean -fd", "Force remove untracked files and folders"),
+            ("tag -a", "Create annotated release tag")
         },
         ["docker"] = new()
         {
-            ("ps", "List running containers"),
+            ("ps", "List active running containers"),
             ("ps -a", "List all containers including stopped"),
             ("compose up -d", "Start container stack in background"),
-            ("compose down", "Stop and clean up container stack"),
+            ("compose down -v", "Stop and clean up containers and volumes"),
             ("logs -f", "Stream container logs live"),
             ("build -t", "Build container image from Dockerfile"),
-            ("exec -it", "Run interactive command inside container"),
+            ("exec -it", "Run interactive shell inside container"),
             ("stop", "Stop one or more running containers"),
-            ("system prune -a", "Remove unused images, containers, and networks")
+            ("system prune -a --volumes", "Remove all unused images, containers, volumes")
         },
         ["dotnet"] = new()
         {
             ("run", "Run application directly"),
+            ("watch run", "Run application with Hot Reload"),
             ("build", "Build project and dependencies"),
             ("test", "Execute unit and integration tests"),
-            ("publish -c Release", "Publish optimized self-contained app"),
+            ("publish -c Release -r win-x64 --self-contained -p:PublishSingleFile=true", "Publish single-file executable"),
             ("add package", "Add NuGet package to project"),
+            ("new webapi", "Scaffold ASP.NET Core Web API project"),
             ("new console", "Scaffold new console application"),
             ("clean", "Clean project build outputs")
         },
@@ -52,21 +63,43 @@ public class SuggestionEngine
             ("install", "Install package dependencies"),
             ("run dev", "Run development server script"),
             ("run build", "Compile production application bundle"),
+            ("outdated", "Check for outdated dependencies"),
             ("test", "Execute configured test runner"),
             ("start", "Start application service"),
             ("init -y", "Initialize new package.json file")
         },
+        ["winget"] = new()
+        {
+            ("search", "Search Windows Package Manager catalog"),
+            ("install", "Install application via winget"),
+            ("upgrade --all", "Upgrade all installed Windows apps"),
+            ("list", "List installed applications")
+        },
+        ["netsh"] = new()
+        {
+            ("wlan show profiles", "List saved Wi-Fi networks"),
+            ("wlan show profile name= key=clear", "Show plaintext Wi-Fi password"),
+            ("int ip reset", "Reset TCP/IP network protocol stack"),
+            ("winsock reset", "Reset Winsock network sockets catalog"),
+            ("advfirewall set allprofiles state on", "Enable Windows Defender firewall")
+        },
+        ["powercfg"] = new()
+        {
+            ("/batteryreport", "Generate HTML laptop battery health report"),
+            ("/hibernate off", "Disable hibernation and reclaim disk space"),
+            ("/energy", "Analyze system power efficiency for 60s")
+        },
         ["python"] = new()
         {
             ("-m venv .venv", "Create new virtual environment in .venv"),
-            ("main.py", "Execute main Python script"),
-            ("-m pip install", "Install Python package")
+            ("-m pip install -r requirements.txt", "Install requirements"),
+            ("main.py", "Execute main Python script")
         }
     };
 
     private static readonly HashSet<string> PathCommands = new(StringComparer.OrdinalIgnoreCase)
     {
-        "cd", "chdir", "dir", "ls", "type", "cat", "code", "del", "rm", "rmdir", "copy", "move", "explorer", "notepad"
+        "cd", "chdir", "dir", "ls", "type", "cat", "code", "del", "rm", "rmdir", "copy", "move", "explorer", "notepad", "robocopy"
     };
 
     public SuggestionEngine(CommandCatalog catalog)
@@ -83,10 +116,10 @@ public class SuggestionEngine
             ? input.Substring(0, cursorPosition)
             : input;
 
-        // If line is empty, return top common commands
+        // If line is empty, return NO suggestions (allows clean prompt and instant Up/Down history browsing!)
         if (string.IsNullOrWhiteSpace(textBeforeCursor))
         {
-            return GetDefaultOverviewSuggestions();
+            return suggestions;
         }
 
         string trimmed = textBeforeCursor.TrimStart();
@@ -95,6 +128,21 @@ public class SuggestionEngine
         bool endsWithSpace = textBeforeCursor.EndsWith(' ');
         string activeToken = endsWithSpace ? string.Empty : (parts.Length > 0 ? parts[^1] : string.Empty);
         string firstToken = parts.Length > 0 ? parts[0] : string.Empty;
+
+        // Special CASE: 'admin <command>' or 'sudo <command>'
+        if (string.Equals(firstToken, "admin", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(firstToken, "sudo", StringComparison.OrdinalIgnoreCase))
+        {
+            if (parts.Length == 1 && endsWithSpace)
+            {
+                return GetCommandSuggestions(string.Empty);
+            }
+            if (parts.Length > 1)
+            {
+                string remainder = textBeforeCursor.Substring(parts[0].Length).TrimStart();
+                return GetSuggestions(remainder, remainder.Length, currentDirectory);
+            }
+        }
 
         // CASE 1: Typing the primary command (first token, no trailing space yet)
         if (parts.Length == 1 && !endsWithSpace)
@@ -109,36 +157,68 @@ public class SuggestionEngine
             return GetFileSystemSuggestions(activeToken, currentDirectory, directoriesOnly: true);
         }
 
-        // CASE 3: Known command with subcommands (git, docker, dotnet, npm, etc.)
+        // CASE 3: Git Config Subcommand: 'git config ...'
+        if (string.Equals(firstToken, "git", StringComparison.OrdinalIgnoreCase) &&
+            parts.Length >= 2 && string.Equals(parts[1], "config", StringComparison.OrdinalIgnoreCase))
+        {
+            var configSuggestions = new List<(string Sub, string Desc)>
+            {
+                ("user.name", "Configure Git author name"),
+                ("user.email", "Configure Git author email address"),
+                ("--global user.name", "Set global Git author name"),
+                ("--global user.email", "Set global Git author email address"),
+                ("--list --show-origin", "List all active settings with file locations"),
+                ("core.autocrlf true", "Enable automatic CRLF line ending conversion")
+            };
+
+            string q = activeToken.ToLowerInvariant();
+            foreach (var (sub, desc) in configSuggestions)
+            {
+                if (string.IsNullOrEmpty(q) || sub.ToLowerInvariant().Contains(q))
+                {
+                    suggestions.Add(new SuggestionItem
+                    {
+                        DisplayText = sub,
+                        InsertText = sub,
+                        Kind = SuggestionKind.Subcommand,
+                        Description = desc,
+                        Category = "Git Config"
+                    });
+                }
+            }
+            if (suggestions.Count > 0) return suggestions.Take(8).ToList();
+        }
+
+        // CASE 4: Known command with subcommands (git, docker, dotnet, npm, netsh, etc.)
         if (SubcommandMap.TryGetValue(firstToken, out var subcommands))
         {
-            // If typing the subcommand (e.g. 'git st' or 'git ')
-            if ((parts.Length == 1 && endsWithSpace) || (parts.Length == 2 && !endsWithSpace))
-            {
-                var query = activeToken.ToLowerInvariant();
-                foreach (var (sub, desc) in subcommands)
-                {
-                    if (string.IsNullOrEmpty(query) || sub.ToLowerInvariant().Contains(query))
-                    {
-                        suggestions.Add(new SuggestionItem
-                        {
-                            DisplayText = sub,
-                            InsertText = sub,
-                            Kind = SuggestionKind.Subcommand,
-                            Description = desc,
-                            Category = firstToken.ToUpperInvariant()
-                        });
-                    }
-                }
+            // If typing after primary command (e.g. 'git st' or 'git ')
+            string searchPart = string.Join(" ", parts.Skip(1)) + (endsWithSpace ? " " : "");
+            searchPart = searchPart.Trim();
 
-                if (suggestions.Count > 0)
+            var query = searchPart.ToLowerInvariant();
+            foreach (var (sub, desc) in subcommands)
+            {
+                if (string.IsNullOrEmpty(query) || sub.ToLowerInvariant().Contains(query))
                 {
-                    return suggestions.Take(8).ToList();
+                    suggestions.Add(new SuggestionItem
+                    {
+                        DisplayText = sub,
+                        InsertText = sub,
+                        Kind = SuggestionKind.Subcommand,
+                        Description = desc,
+                        Category = firstToken.ToUpperInvariant()
+                    });
                 }
+            }
+
+            if (suggestions.Count > 0)
+            {
+                return suggestions.Take(8).ToList();
             }
         }
 
-        // CASE 4: Path commands (code, type, dir, etc.) or active token looks like a path
+        // CASE 5: Path commands (code, type, dir, robocopy, etc.) or active token looks like a path
         if (PathCommands.Contains(firstToken) || activeToken.Contains('/') || activeToken.Contains('\\') || activeToken.StartsWith('.'))
         {
             var pathSuggestions = GetFileSystemSuggestions(activeToken, currentDirectory, directoriesOnly: false);
@@ -148,7 +228,7 @@ public class SuggestionEngine
             }
         }
 
-        // CASE 5: General fallback - search catalog for matching commands/flags
+        // CASE 6: General catalog search fallback
         var catalogMatches = _catalog.Search(trimmed);
         foreach (var cmd in catalogMatches.Take(6))
         {
@@ -170,7 +250,7 @@ public class SuggestionEngine
         var results = new List<SuggestionItem>();
         string q = prefix.ToLowerInvariant();
 
-        // 1. Check catalog
+        // 1. Search catalog matches
         var matches = _catalog.Search(q);
         foreach (var cmd in matches)
         {
@@ -184,16 +264,18 @@ public class SuggestionEngine
             });
         }
 
-        // 2. Also check common executables or short aliases
+        // 2. Built-in system commands
         var builtins = new[]
         {
-            ("cd", "Change current directory"),
+            ("cd", "Change current working directory"),
             ("dir", "List directory contents"),
             ("cls", "Clear terminal screen"),
-            ("exit", "Exit PlainShell"),
-            (":catalog", "Open Categorized Command Palette [F1 / Ctrl+P]"),
-            (":help", "View keyboard shortcuts & tips"),
-            (":history", "View command history")
+            ("admin", "Run command elevated as Administrator"),
+            ("sudo", "Run command elevated as Administrator"),
+            (":catalog", "Open live searchable Command Palette [F1 / Ctrl+P]"),
+            (":help", "View keyboard shortcuts and controls"),
+            (":history", "View session command history"),
+            ("exit", "Exit PlainShell")
         };
 
         foreach (var (name, desc) in builtins)
@@ -327,18 +409,5 @@ public class SuggestionEngine
         {
             return "File";
         }
-    }
-
-    private List<SuggestionItem> GetDefaultOverviewSuggestions()
-    {
-        return new List<SuggestionItem>
-        {
-            new() { DisplayText = "cd <dir>", InsertText = "cd ", Kind = SuggestionKind.Command, Description = "Navigate to a directory", Category = "Navigation" },
-            new() { DisplayText = "dir", InsertText = "dir", Kind = SuggestionKind.Command, Description = "List files and directories", Category = "Navigation" },
-            new() { DisplayText = "git status", InsertText = "git status", Kind = SuggestionKind.Command, Description = "Check git repository status", Category = "Git" },
-            new() { DisplayText = "docker ps", InsertText = "docker ps", Kind = SuggestionKind.Command, Description = "List running docker containers", Category = "Docker" },
-            new() { DisplayText = ":catalog", InsertText = ":catalog", Kind = SuggestionKind.Command, Description = "Open Categorized Command Palette [F1 / Ctrl+P]", Category = "PlainShell" },
-            new() { DisplayText = ":help", InsertText = ":help", Kind = SuggestionKind.Command, Description = "View keyboard shortcuts & tips", Category = "PlainShell" }
-        };
     }
 }

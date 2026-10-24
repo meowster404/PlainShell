@@ -56,19 +56,20 @@ public static class Program
         var palette = new PaletteView(catalog);
 
         // Executor with callback to trigger command palette
+        string? pendingInput = null;
         CommandExecutor? executor = null;
         executor = new CommandExecutor(context, catalog, () =>
         {
             var chosen = palette.Show();
-            if (!string.IsNullOrEmpty(chosen))
+            if (chosen != null && !string.IsNullOrEmpty(chosen.Command))
             {
-                if (chosen.StartsWith("INSERT:"))
+                if (chosen.InsertOnly)
                 {
-                    // Handled in caller
+                    pendingInput = chosen.Command;
                 }
                 else
                 {
-                    executor?.Execute(chosen);
+                    executor?.Execute(chosen.Command, chosen.AsAdmin);
                 }
             }
         });
@@ -79,8 +80,6 @@ public static class Program
         ConsoleHelper.SafeClear();
         CommandExecutor.PrintWelcomeBanner();
 
-        string? pendingInput = null;
-
         // Main Shell REPL loop
         while (context.IsRunning)
         {
@@ -90,15 +89,15 @@ public static class Program
             if (result.OpenPaletteRequested)
             {
                 var chosen = palette.Show();
-                if (!string.IsNullOrEmpty(chosen))
+                if (chosen != null && !string.IsNullOrEmpty(chosen.Command))
                 {
-                    if (chosen.StartsWith("INSERT:"))
+                    if (chosen.InsertOnly)
                     {
-                        pendingInput = chosen.Substring("INSERT:".Length);
+                        pendingInput = chosen.Command;
                     }
                     else
                     {
-                        executor.Execute(chosen);
+                        executor.Execute(chosen.Command, chosen.AsAdmin);
                     }
                 }
                 continue;
