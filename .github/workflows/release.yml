@@ -40,6 +40,13 @@ jobs:
         run: |
           Copy-Item ./Assets/commands.json -Destination ./publish/commands.json -Force
           Copy-Item ./README.md -Destination ./publish/README.md -Force
+          if (!(Test-Path ./dist)) { New-Item -ItemType Directory -Path ./dist | Out-Null }
+          Copy-Item ./publish/* -Destination ./dist -Force -Recurse
+
+      - name: Build Windows Setup Installer
+        run: |
+          choco install innosetup --no-progress
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
 
       - name: Create Release Zip Archive
         run: |
@@ -50,11 +57,13 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
         with:
           name: PlainShell ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
           draft: false
           prerelease: ${{ contains(github.ref_name, 'beta') || contains(github.ref_name, 'alpha') || contains(github.ref_name, 'rc') }}
           generate_release_notes: true
           files: |
-            PlainShell-windows-x64.zip
+            ./dist-installer/PlainShell-Setup-x64.exe
             ./publish/PlainShell.exe
+            PlainShell-windows-x64.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
