@@ -648,6 +648,24 @@
     "IsCustom": false
   },
   {
+    "Name": "winget list",
+    "Category": "Packages & Developer Tools",
+    "Description": "List all applications and packages installed on this PC",
+    "Syntax": "winget list [<query>]",
+    "Example": "winget list",
+    "Tags": ["winget", "installed", "packages", "apps", "software"],
+    "IsCustom": false
+  },
+  {
+    "Name": "winget source update",
+    "Category": "Packages & Developer Tools",
+    "Description": "Update and refresh Windows Package Manager source catalog index",
+    "Syntax": "winget source update",
+    "Example": "winget source update",
+    "Tags": ["winget", "update", "source", "refresh"],
+    "IsCustom": false
+  },
+  {
     "Name": "winget install",
     "Category": "Packages & Developer Tools",
     "Description": "Install software package silently via Windows Package Manager",
