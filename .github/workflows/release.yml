@@ -1,0 +1,60 @@
+name: Release PlainShell Executable
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore PlainShell.csproj
+
+      - name: Publish Single-File Executable
+        run: |
+          dotnet publish PlainShell.csproj `
+            -c Release `
+            -r win-x64 `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:EnableCompressionInSingleFile=true `
+            -o ./publish
+
+      - name: Copy Assets & Documentation
+        run: |
+          Copy-Item ./Assets/commands.json -Destination ./publish/commands.json -Force
+          Copy-Item ./README.md -Destination ./publish/README.md -Force
+
+      - name: Create Release Zip Archive
+        run: |
+          Compress-Archive -Path ./publish/* -DestinationPath ./PlainShell-windows-x64.zip -Force
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+        with:
+          name: PlainShell ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            PlainShell-windows-x64.zip
+            ./publish/PlainShell.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

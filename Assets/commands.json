@@ -1,0 +1,407 @@
+[
+  {
+    "Name": "cd",
+    "Category": "Navigation & Filesystem",
+    "Description": "Change the current working directory",
+    "Syntax": "cd <directory>",
+    "Example": "cd ..",
+    "Tags": ["navigation", "dir", "folder", "chdir", "path"],
+    "IsCustom": false
+  },
+  {
+    "Name": "dir",
+    "Category": "Navigation & Filesystem",
+    "Description": "List files and directories in current folder",
+    "Syntax": "dir [/s] [/b] [path]",
+    "Example": "dir /b",
+    "Tags": ["ls", "list", "files", "folder"],
+    "IsCustom": false
+  },
+  {
+    "Name": "tree",
+    "Category": "Navigation & Filesystem",
+    "Description": "Graphically display the folder structure of a drive or path",
+    "Syntax": "tree [/F] [/A] [path]",
+    "Example": "tree /F",
+    "Tags": ["tree", "structure", "folder", "hierarchy"],
+    "IsCustom": false
+  },
+  {
+    "Name": "mkdir",
+    "Category": "Navigation & Filesystem",
+    "Description": "Create a new directory or folder",
+    "Syntax": "mkdir <directory_name>",
+    "Example": "mkdir src",
+    "Tags": ["md", "folder", "create", "make"],
+    "IsCustom": false
+  },
+  {
+    "Name": "copy",
+    "Category": "Navigation & Filesystem",
+    "Description": "Copy one or more files to another location",
+    "Syntax": "copy <source> <destination>",
+    "Example": "copy app.config app.config.bak",
+    "Tags": ["cp", "duplicate", "backup"],
+    "IsCustom": false
+  },
+  {
+    "Name": "move",
+    "Category": "Navigation & Filesystem",
+    "Description": "Move files or rename files and directories",
+    "Syntax": "move <source> <destination>",
+    "Example": "move old_name.txt new_name.txt",
+    "Tags": ["mv", "rename", "relocate"],
+    "IsCustom": false
+  },
+  {
+    "Name": "del",
+    "Category": "Navigation & Filesystem",
+    "Description": "Delete one or more files",
+    "Syntax": "del [/s] [/q] <filename>",
+    "Example": "del /q temp.log",
+    "Tags": ["rm", "remove", "delete", "erase"],
+    "IsCustom": false
+  },
+  {
+    "Name": "type",
+    "Category": "Navigation & Filesystem",
+    "Description": "Display the contents of a text file in the console",
+    "Syntax": "type <filename>",
+    "Example": "type README.md",
+    "Tags": ["cat", "read", "view", "print"],
+    "IsCustom": false
+  },
+  {
+    "Name": "explorer .",
+    "Category": "Navigation & Filesystem",
+    "Description": "Open the current directory in Windows File Explorer",
+    "Syntax": "explorer [path]",
+    "Example": "explorer .",
+    "Tags": ["gui", "open", "folder", "windows"],
+    "IsCustom": false
+  },
+  {
+    "Name": "code .",
+    "Category": "Developer Utilities",
+    "Description": "Open current directory in Visual Studio Code",
+    "Syntax": "code [path_or_file]",
+    "Example": "code .",
+    "Tags": ["vscode", "editor", "ide"],
+    "IsCustom": false
+  },
+  {
+    "Name": "git status",
+    "Category": "Git Version Control",
+    "Description": "Show the working tree status and modified files",
+    "Syntax": "git status [-s]",
+    "Example": "git status",
+    "Tags": ["git", "vcs", "diff", "state"],
+    "IsCustom": false
+  },
+  {
+    "Name": "git add .",
+    "Category": "Git Version Control",
+    "Description": "Stage all modified and new files for commit",
+    "Syntax": "git add <pathspec>",
+    "Example": "git add .",
+    "Tags": ["git", "stage", "commit"],
+    "IsCustom": false
+  },
+  {
+    "Name": "git commit -m",
+    "Category": "Git Version Control",
+    "Description": "Record staged changes to the repository with a commit message",
+    "Syntax": "git commit -m \"<message>\"",
+    "Example": "git commit -m \"feat: add autocomplete\"",
+    "Tags": ["git", "save", "record"],
+    "IsCustom": false
+  },
+  {
+    "Name": "git push",
+    "Category": "Git Version Control",
+    "Description": "Update remote references along with associated objects",
+    "Syntax": "git push [remote] [branch]",
+    "Example": "git push origin main",
+    "Tags": ["git", "remote", "upload", "sync"],
+    "IsCustom": false
+  },
+  {
+    "Name": "git pull",
+    "Category": "Git Version Control",
+    "Description": "Fetch from and integrate with another repository or branch",
+    "Syntax": "git pull [remote] [branch]",
+    "Example": "git pull origin main",
+    "Tags": ["git", "sync", "download", "fetch"],
+    "IsCustom": false
+  },
+  {
+    "Name": "git log --oneline -n 10",
+    "Category": "Git Version Control",
+    "Description": "Display compact commit history for the last 10 commits",
+    "Syntax": "git log [--oneline] [-n count]",
+    "Example": "git log --oneline -n 10",
+    "Tags": ["git", "history", "commits"],
+    "IsCustom": false
+  },
+  {
+    "Name": "git diff",
+    "Category": "Git Version Control",
+    "Description": "Show changes between commits, commit and working tree",
+    "Syntax": "git diff [path]",
+    "Example": "git diff",
+    "Tags": ["git", "changes", "comparison"],
+    "IsCustom": false
+  },
+  {
+    "Name": "git checkout -b",
+    "Category": "Git Version Control",
+    "Description": "Create and switch to a new branch",
+    "Syntax": "git checkout -b <branch_name>",
+    "Example": "git checkout -b feature/search",
+    "Tags": ["git", "branch", "switch"],
+    "IsCustom": false
+  },
+  {
+    "Name": "git stash",
+    "Category": "Git Version Control",
+    "Description": "Stash the changes in a dirty working directory away",
+    "Syntax": "git stash [save|pop|list]",
+    "Example": "git stash pop",
+    "Tags": ["git", "stash", "temporary"],
+    "IsCustom": false
+  },
+  {
+    "Name": "docker ps",
+    "Category": "Docker & Containers",
+    "Description": "List all active running Docker containers",
+    "Syntax": "docker ps [-a]",
+    "Example": "docker ps -a",
+    "Tags": ["docker", "container", "status"],
+    "IsCustom": false
+  },
+  {
+    "Name": "docker compose up -d",
+    "Category": "Docker & Containers",
+    "Description": "Build, (re)create, and start containers in the background",
+    "Syntax": "docker compose up [-d] [--build]",
+    "Example": "docker compose up -d",
+    "Tags": ["docker", "compose", "start", "daemon"],
+    "IsCustom": false
+  },
+  {
+    "Name": "docker compose down",
+    "Category": "Docker & Containers",
+    "Description": "Stop and remove containers, networks, and images created by up",
+    "Syntax": "docker compose down [-v]",
+    "Example": "docker compose down",
+    "Tags": ["docker", "compose", "stop"],
+    "IsCustom": false
+  },
+  {
+    "Name": "docker logs -f",
+    "Category": "Docker & Containers",
+    "Description": "Fetch and stream live logs of a container",
+    "Syntax": "docker logs -f <container_name_or_id>",
+    "Example": "docker logs -f web_api",
+    "Tags": ["docker", "logs", "monitor"],
+    "IsCustom": false
+  },
+  {
+    "Name": "docker build -t",
+    "Category": "Docker & Containers",
+    "Description": "Build a Docker image from a Dockerfile",
+    "Syntax": "docker build -t <image_name>:<tag> <context_path>",
+    "Example": "docker build -t myapp:latest .",
+    "Tags": ["docker", "build", "image"],
+    "IsCustom": false
+  },
+  {
+    "Name": "docker system prune -a",
+    "Category": "Docker & Containers",
+    "Description": "Remove all unused containers, networks, images, and volumes",
+    "Syntax": "docker system prune [-a] [--volumes]",
+    "Example": "docker system prune -a",
+    "Tags": ["docker", "clean", "cleanup", "prune"],
+    "IsCustom": false
+  },
+  {
+    "Name": "ipconfig /all",
+    "Category": "Networking",
+    "Description": "Display full network adapter configuration, IP, and DNS",
+    "Syntax": "ipconfig [/all] [/flushdns]",
+    "Example": "ipconfig /flushdns",
+    "Tags": ["ip", "network", "adapter", "dns"],
+    "IsCustom": false
+  },
+  {
+    "Name": "ping",
+    "Category": "Networking",
+    "Description": "Send ICMP echo requests to test network connectivity to host",
+    "Syntax": "ping <host_or_ip> [-n count]",
+    "Example": "ping google.com -n 4",
+    "Tags": ["network", "latency", "icmp", "connection"],
+    "IsCustom": false
+  },
+  {
+    "Name": "curl -I",
+    "Category": "Networking",
+    "Description": "Fetch HTTP response headers from a web server",
+    "Syntax": "curl -I <url>",
+    "Example": "curl -I https://api.github.com",
+    "Tags": ["http", "web", "headers", "api"],
+    "IsCustom": false
+  },
+  {
+    "Name": "netstat -ano",
+    "Category": "Networking",
+    "Description": "Display active TCP connections and listening ports with PID",
+    "Syntax": "netstat -ano | findstr <port>",
+    "Example": "netstat -ano | findstr 8080",
+    "Tags": ["network", "ports", "connections", "tcp"],
+    "IsCustom": false
+  },
+  {
+    "Name": "tracert",
+    "Category": "Networking",
+    "Description": "Trace network route hops to a destination host",
+    "Syntax": "tracert <host_or_ip>",
+    "Example": "tracert 1.1.1.1",
+    "Tags": ["network", "route", "hops", "traceroute"],
+    "IsCustom": false
+  },
+  {
+    "Name": "tasklist",
+    "Category": "Process & System",
+    "Description": "Display a list of currently running processes on the computer",
+    "Syntax": "tasklist [/v] [/fi \"filter\"]",
+    "Example": "tasklist /fi \"imagename eq node.exe\"",
+    "Tags": ["ps", "process", "tasks", "running"],
+    "IsCustom": false
+  },
+  {
+    "Name": "taskkill /F /PID",
+    "Category": "Process & System",
+    "Description": "Forcefully terminate a process by its Process ID (PID)",
+    "Syntax": "taskkill /F /PID <pid>",
+    "Example": "taskkill /F /PID 1234",
+    "Tags": ["kill", "stop", "terminate", "pid"],
+    "IsCustom": false
+  },
+  {
+    "Name": "systeminfo",
+    "Category": "Process & System",
+    "Description": "Display detailed OS, hardware, BIOS, and memory configuration",
+    "Syntax": "systeminfo",
+    "Example": "systeminfo",
+    "Tags": ["hardware", "os", "specs", "ram", "cpu"],
+    "IsCustom": false
+  },
+  {
+    "Name": "dotnet run",
+    "Category": "Package Managers & Build",
+    "Description": "Run source code without explicit compile or launch steps",
+    "Syntax": "dotnet run [--project <path>]",
+    "Example": "dotnet run",
+    "Tags": ["dotnet", "csharp", "run", "c#"],
+    "IsCustom": false
+  },
+  {
+    "Name": "dotnet build",
+    "Category": "Package Managers & Build",
+    "Description": "Build a project and all of its dependencies into binaries",
+    "Syntax": "dotnet build [-c Release]",
+    "Example": "dotnet build -c Release",
+    "Tags": ["dotnet", "compile", "build"],
+    "IsCustom": false
+  },
+  {
+    "Name": "dotnet publish",
+    "Category": "Package Managers & Build",
+    "Description": "Publish application and its dependencies to a folder for deployment",
+    "Syntax": "dotnet publish -c Release -r win-x64 --self-contained",
+    "Example": "dotnet publish -c Release -r win-x64 --self-contained -p:PublishSingleFile=true",
+    "Tags": ["dotnet", "publish", "release", "singlefile", "exe"],
+    "IsCustom": false
+  },
+  {
+    "Name": "npm install",
+    "Category": "Package Managers & Build",
+    "Description": "Install dependencies defined in package.json",
+    "Syntax": "npm install [package_name] [--save-dev]",
+    "Example": "npm install",
+    "Tags": ["npm", "node", "javascript", "packages"],
+    "IsCustom": false
+  },
+  {
+    "Name": "npm run dev",
+    "Category": "Package Managers & Build",
+    "Description": "Execute the dev script defined in package.json",
+    "Syntax": "npm run <script_name>",
+    "Example": "npm run dev",
+    "Tags": ["npm", "run", "dev", "server"],
+    "IsCustom": false
+  },
+  {
+    "Name": "pip install",
+    "Category": "Package Managers & Build",
+    "Description": "Install Python packages from PyPI or requirements file",
+    "Syntax": "pip install -r requirements.txt",
+    "Example": "pip install -r requirements.txt",
+    "Tags": ["python", "pip", "package"],
+    "IsCustom": false
+  },
+  {
+    "Name": "python -m venv .venv",
+    "Category": "Package Managers & Build",
+    "Description": "Create a virtual isolated Python environment in .venv folder",
+    "Syntax": "python -m venv <directory>",
+    "Example": "python -m venv .venv",
+    "Tags": ["python", "venv", "virtualenv"],
+    "IsCustom": false
+  },
+  {
+    "Name": "cls",
+    "Category": "PlainShell Built-ins",
+    "Description": "Clear the terminal screen and redraw the header",
+    "Syntax": "cls",
+    "Example": "cls",
+    "Tags": ["clear", "screen", "reset"],
+    "IsCustom": false
+  },
+  {
+    "Name": ":catalog",
+    "Category": "PlainShell Built-ins",
+    "Description": "Open the full-screen categorized Command Palette (or press F1 / Ctrl+P)",
+    "Syntax": ":catalog",
+    "Example": ":catalog",
+    "Tags": ["catalog", "palette", "commands", "menu", "search", "f1"],
+    "IsCustom": false
+  },
+  {
+    "Name": ":help",
+    "Category": "PlainShell Built-ins",
+    "Description": "Display PlainShell keyboard shortcuts and tips",
+    "Syntax": ":help",
+    "Example": ":help",
+    "Tags": ["help", "guide", "keys", "shortcuts"],
+    "IsCustom": false
+  },
+  {
+    "Name": ":history",
+    "Category": "PlainShell Built-ins",
+    "Description": "View previously executed commands in this session",
+    "Syntax": ":history",
+    "Example": ":history",
+    "Tags": ["history", "past", "log"],
+    "IsCustom": false
+  },
+  {
+    "Name": "exit",
+    "Category": "PlainShell Built-ins",
+    "Description": "Exit the PlainShell terminal application",
+    "Syntax": "exit",
+    "Example": "exit",
+    "Tags": ["quit", "close", "bye"],
+    "IsCustom": false
+  }
+]
