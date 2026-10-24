@@ -76,6 +76,11 @@ public class CommandExecutor
                 PrintHelp();
                 return true;
 
+            case ":update":
+            case ":upgrade":
+                UpdateManager.CheckAndPromptUpdate(interactive: true);
+                return true;
+
             case ":history":
                 PrintHistory();
                 return true;
@@ -201,6 +206,11 @@ public class CommandExecutor
 
         AnsiConsole.Write(panel);
         AnsiConsole.WriteLine();
+
+        if (!string.IsNullOrEmpty(UpdateManager.PendingNotification))
+        {
+            AnsiConsole.MarkupLine($"[bold yellow]★ {Markup.Escape(UpdateManager.PendingNotification)}[/]\n");
+        }
     }
 
     private void PrintHelp()

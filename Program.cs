@@ -24,9 +24,15 @@ public static class Program
                 return SelfTestRunner.RunAllTests();
             }
 
+            if (arg == "--update" || arg == "-u")
+            {
+                UpdateManager.CheckAndPromptUpdate(interactive: true);
+                return 0;
+            }
+
             if (arg == "--version" || arg == "-v")
             {
-                AnsiConsole.MarkupLine("[bold cyan]PlainShell[/] version [bold green]1.0.0[/] (win-x64)");
+                AnsiConsole.MarkupLine($"[bold cyan]PlainShell[/] version [bold green]{UpdateManager.CurrentVersion}[/] ({UpdateManager.CurrentTag}) [grey](win-x64)[/]");
                 AnsiConsole.MarkupLine("[grey]Intelligent Terminal Shell with VS Code-Style IntelliSense[/]");
                 return 0;
             }
@@ -36,6 +42,7 @@ public static class Program
                 AnsiConsole.MarkupLine("[bold cyan]PlainShell[/] - Modern Intelligent Windows Terminal Shell\n");
                 AnsiConsole.MarkupLine("[bold white]Usage:[/]");
                 AnsiConsole.MarkupLine("  PlainShell.exe            Launch interactive shell session");
+                AnsiConsole.MarkupLine("  PlainShell.exe --update   Check for updates and apply in-app");
                 AnsiConsole.MarkupLine("  PlainShell.exe --test     Run automated self-tests & diagnostic suite");
                 AnsiConsole.MarkupLine("  PlainShell.exe --version  Show version information");
                 AnsiConsole.MarkupLine("  PlainShell.exe --help     Show this help message\n");
@@ -48,6 +55,16 @@ public static class Program
                 return 0;
             }
         }
+
+        // Silent non-blocking update check in background
+        _ = Task.Run(async () =>
+        {
+            var up = await UpdateManager.CheckForUpdateAsync(silent: true);
+            if (up != null)
+            {
+                UpdateManager.PendingNotification = $"Update available: {up.TagName}! (Press F1 -> Check Updates)";
+            }
+        });
 
         // Initialize shell components
         var context = new ShellContext();

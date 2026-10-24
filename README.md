@@ -159,6 +159,16 @@ GitHub Actions will automatically:
 
 ---
 
+## 🔄 In-App Auto-Update
+
+PlainShell features a native, in-application update manager that handles updates directly inside the terminal without redirecting you to your browser:
+
+- **Automatic Check on Startup:** Silently checks for newer releases in the background when you launch PlainShell. If a new version exists, an alert banner is displayed in the terminal.
+- **GUI Check Anytime:** Press **`F1`** (or **`Ctrl + P`**) and switch to the **`🔄 Check Updates`** tab, or simply press **`F5`** inside the palette.
+- **Direct In-App Upgrade:** Downloads the new package with an interactive progress bar and automatically applies the update in-place without needing manual file handling.
+
+---
+
 ## 🎨 Customizing Commands
 
 PlainShell reads commands from `Assets/commands.json`. You can easily add new commands in JSON format:
@@ -175,6 +185,35 @@ PlainShell reads commands from `Assets/commands.json`. You can easily add new co
 ```
 
 Custom commands added inside the application (`F1` -> `+ Add Custom Command`) are automatically stored in `%USERPROFILE%/.plainshell/custom_commands.json` so they persist across updates.
+
+---
+
+## 👥 Contributors
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/meowster404">
+        <img src="https://avatars.githubusercontent.com/u/113993801?v=4" width="90px;" alt="meowster" style="border-radius: 50%;" /><br />
+        <sub><b>meowster</b></sub>
+      </a><br />
+      <sub>Creator & Core Developer</sub>
+    </td>
+    <td align="center">
+      <a href="https://github.com">
+        <img src="https://api.iconify.design/logos:google-icon.svg" width="90px;" alt="Google Antigravity" /><br />
+        <sub><b>Google Antigravity</b></sub>
+      </a><br />
+      <sub>AI Pair Programmer & Architecture</sub>
+    </td>
+  </tr>
+</table>
+
+---
+
+## 🙏 Acknowledgments
+
+This application was generated and engineered with the help of **Google Antigravity** — an advanced agentic coding assistant by the Google DeepMind team. Special thanks to the open-source community for .NET and [Spectre.Console](https://spectreconsole.net/).
 
 ---
 

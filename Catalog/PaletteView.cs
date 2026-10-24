@@ -22,7 +22,7 @@ public class PaletteView
 
     public PaletteResult? Show()
     {
-        var categories = new List<string> { "★ All" };
+        var categories = new List<string> { "★ All", "🔄 Check Updates" };
         categories.AddRange(_catalog.GetCategories());
         int selectedCategoryIndex = 0;
 
@@ -32,6 +32,14 @@ public class PaletteView
         while (true)
         {
             ConsoleHelper.SafeClear();
+
+            // If user clicked or navigated to "Check Updates" tab
+            if (categories[selectedCategoryIndex] == "🔄 Check Updates")
+            {
+                UpdateManager.CheckAndPromptUpdate(interactive: true);
+                selectedCategoryIndex = 0;
+                continue;
+            }
 
             string currentCategory = categories[selectedCategoryIndex];
             string? categoryFilter = currentCategory == "★ All" ? null : currentCategory;
@@ -71,7 +79,7 @@ public class PaletteView
 
             // Footer instructions
             AnsiConsole.WriteLine();
-            AnsiConsole.MarkupLine("[grey]Controls: [/][cyan][[↑/↓]][/][grey] Select command  [/][cyan][[Tab / ← / →]][/][grey] Switch category  [/][cyan][[Enter]][/][grey] Action menu  [/][cyan][[Esc]][/][grey] Exit[/]");
+            AnsiConsole.MarkupLine("[grey]Controls: [/][cyan][[↑/↓]][/][grey] Select command  [/][cyan][[Tab / ← / →]][/][grey] Switch category  [/][yellow][[F5]][/][grey] Check Updates  [/][cyan][[Enter]][/][grey] Action  [/][cyan][[Esc]][/][grey] Exit[/]");
 
             // Wait for keypress
             var keyInfo = Console.ReadKey(intercept: true);
@@ -81,6 +89,13 @@ public class PaletteView
             {
                 ConsoleHelper.SafeClear();
                 return null;
+            }
+
+            // Handle F5 (Check for Updates directly)
+            if (keyInfo.Key == ConsoleKey.F5)
+            {
+                UpdateManager.CheckAndPromptUpdate(interactive: true);
+                continue;
             }
 
             // Handle Tab or RightArrow (switch category)
